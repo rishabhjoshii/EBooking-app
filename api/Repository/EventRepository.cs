@@ -67,9 +67,9 @@ namespace api.Repository
                 }
                 existingEvent.EventName = eventModel.EventName;
                 existingEvent.Date = eventModel.Date;
-                existingEvent.Timing = existingEvent.Timing;
-                existingEvent.Venue = existingEvent.Venue;
-                existingEvent.Description = existingEvent.Description;
+                existingEvent.Timing = eventModel.Timing;
+                existingEvent.Venue = eventModel.Venue;
+                existingEvent.Description = eventModel.Description;
                 existingEvent.CategoryId = eventModel.CategoryId;
                 existingEvent.TotalTickets = eventModel.TotalTickets;
                 existingEvent.TicketPrice = eventModel.TicketPrice;
