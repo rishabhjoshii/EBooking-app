@@ -11,5 +11,7 @@ namespace api.Interfaces
         Task<List<Booking>> GetAllAsync();
         Task<Booking> GetByIdAsync(int id);
         Task<Booking?> CreateAsync(Booking bookingModel, int eventId);
+
+        Task<List<Booking>?> DeleteAllAsync(int eventId);
     }
 }

@@ -36,6 +36,20 @@ namespace api.Repository
             return bookingModel;
         }
 
+        public async Task<List<Booking>?> DeleteAllAsync(int eventId)
+        {
+            var bookings = await _context.Bookings.Where(x => x.EventId == eventId).ToListAsync();
+            if(bookings == null){
+                return null;
+            }
+
+            _context.Bookings.RemoveRange(bookings);
+            await _context.SaveChangesAsync();
+
+            return bookings;
+
+        }
+
         public async Task<List<Booking>> GetAllAsync()
         {
             var bookings = await _context.Bookings.ToListAsync();

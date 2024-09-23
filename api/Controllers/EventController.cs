@@ -16,9 +16,11 @@ namespace api.Controllers
     public class EventController : ControllerBase
     {
         private readonly IEventRepository _eventRepo;
-        public EventController(IEventRepository eventRepo)
+        private readonly IBookingRepository _bookingRepo;
+        public EventController(IEventRepository eventRepo, IBookingRepository bookingRepo)
         {
             _eventRepo = eventRepo;
+            _bookingRepo = bookingRepo;
         }
 
         [HttpGet]
@@ -96,8 +98,10 @@ namespace api.Controllers
             if(eventModel == null){
                 return NotFound("event not found");
             }
+            var deletedBookings = await _bookingRepo.DeleteAllAsync(id);
 
-            return Ok("event deleted successfully");
+            return Ok(new { message = "Event deleted successfully", deletedBookings = deletedBookings });
+
         }
     }
 }
