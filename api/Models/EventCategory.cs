@@ -8,7 +8,7 @@ namespace api.Models
 {
     public class EventCategory
     {
-
+        
         public int Id { get; set; }
 
         [Required]

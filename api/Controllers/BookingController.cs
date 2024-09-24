@@ -64,7 +64,7 @@ namespace api.Controllers
             
             var bookingStatus = await _bookingRepo.CreateAsync(bookingModel, eventId);
             if(bookingStatus==null){
-                return Ok("either event does not exits or lesser ticket are avaiable");
+                return Ok("either event does not exits or lesser ticket are avaiable or pricePaid is not justified");
             }
 
             return CreatedAtAction(nameof(GetById), new {id = bookingModel.Id}, bookingModel.ToBookingDto());

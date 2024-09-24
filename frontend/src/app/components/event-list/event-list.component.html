@@ -1,0 +1,13 @@
+<p>event-list works!</p>
+
+<div class="p-4">
+    <h1 class="text-2xl font-bold mb-4">Event Listings</h1>
+    <div *ngFor="let event of events" class="border p-4 mb-4">
+      <h2 class="text-xl font-semibold">{{ event.name }}</h2>
+      <p>Date: {{ event.date }}</p>
+      <p>Location: {{ event.location }}</p>
+      <p>Price: ₹{{ event.price }}</p>
+      <a [routerLink]="['/booking', event.id]" class="text-blue-500">Book Now</a>
+    </div>
+  </div>
+  

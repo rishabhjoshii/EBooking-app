@@ -25,8 +25,10 @@ namespace api.Repository
             }
             var availableTickets = eventModel.TotalTickets - eventModel.BookedTickets;
             var ticketsRequired = bookingModel.NoOfTickets;
+            var ticketPrice = eventModel.TicketPrice;
+            var pricePaid = bookingModel.PricePaid;
 
-            if(availableTickets < ticketsRequired){
+            if((availableTickets < ticketsRequired) || (pricePaid != ticketPrice*ticketsRequired)){
                 return null;
             }
             await _context.Bookings.AddAsync(bookingModel);
