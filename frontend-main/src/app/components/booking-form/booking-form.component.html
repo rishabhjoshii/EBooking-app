@@ -1,6 +1,3 @@
-<p>booking-form works!</p>
-
-
 
 @if (event) {<div class="container mx-auto p-4 justify-center items-center">
     <h1 class="text-2xl font-bold mb-4">Book Tickets for {{ event.eventName }}</h1>
@@ -34,11 +31,13 @@
       </div>
       <div class="mb-4">
         <label for="tickets" class="block mb-2">Number of Tickets:</label>
+        <div class="text-sm text-gray-500 mb-1 mt-1">only {{event.totalTickets-event.bookedTickets}} tickets left</div>
         <input type="number" id="tickets" formControlName="tickets"
                class="w-full px-3 py-2 border rounded" [ngClass]="{'border-red-500': bookingForm.get('tickets')?.invalid && bookingForm.get('tickets')?.touched}">
         <div *ngIf="bookingForm.get('tickets')?.invalid && bookingForm.get('tickets')?.touched" class="text-red-500 mt-1">
           <small *ngIf="bookingForm.get('tickets')?.errors?.['required']">Number of tickets is required.</small>
           <small *ngIf="bookingForm.get('tickets')?.errors?.['min']">At least 1 ticket must be booked.</small>
+          <small *ngIf="bookingForm.get('tickets')?.errors?.['max']">Only {{event.totalTickets - event.bookedTickets}} tickets are available.</small>
         </div>
       </div>
       <div class="mb-4">
@@ -51,7 +50,12 @@
       <p>Thank you for your booking. We'll send you a confirmation email shortly.</p>
     </div>
 
-    <button *ngIf="bookingSuccess" [routerLink]="['/']"  class="justify-center items-center mt-10 p-4 bg-blue-400">Continue Booking</button>
+    <div *ngIf="bookingFailed" class="bg-red-100 border-l-4 border-red-200 text-red-700 p-4" role="alert">
+      <p class="font-bold">Booking failed!</p>
+      <p>Something went wrong. Try again after some time.</p>
+    </div>
+
+    <button *ngIf="bookingSuccess || bookingFailed" [routerLink]="['/']"  class="justify-center items-center mt-10 p-4 bg-blue-400">Continue Booking More...</button>
 
   </div>}
 @else {

@@ -19,4 +19,6 @@ export class EventService {
   getEvent(id: number): Observable<Event | undefined> {
     return this.http.get<Event | undefined>(`http://localhost:5241/api/Events/${id}`);
   }
+
+  
 }
