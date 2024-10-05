@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -8,7 +9,7 @@ namespace api.Models
 {
     public class Booking
     {
-        //primary key
+        [Key]
         public int Id { get; set; }
         public string Username { get; set; } = string.Empty;
 
@@ -20,16 +21,21 @@ namespace api.Models
         [RegularExpression(@"^\d{10}$", ErrorMessage = "Phone number must be exactly 10 digits.")]
         public long PhoneNumber { get; set; }
 
+        [Required]
         public string ApplicationUserId { get; set; } // foreign key
 
+        [Required]
         public int EventId { get; set; } //foreign key
         public DateTime BookedAt { get; set; }
         public int NoOfTickets { get; set; }
         public int PricePaid { get; set; }
 
         //navigation properties
-        public Event Event { get; set; }
-        public ApplicationUser ApplicationUser { get; set; }
+        [ForeignKey("EventId")]
+        public virtual Event Event { get; set; }
+
+        [ForeignKey("ApplicationUserId")]
+        public virtual ApplicationUser ApplicationUser { get; set; }
 
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using api.Data;
 
@@ -11,9 +12,11 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20241005205936_AddEventUserRelationship")]
+    partial class AddEventUserRelationship
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -230,7 +233,7 @@ namespace api.Migrations
 
                     b.Property<string>("ApplicationUserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("BookedAt")
                         .HasColumnType("datetime2");
@@ -256,10 +259,6 @@ namespace api.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ApplicationUserId");
-
-                    b.HasIndex("EventId");
 
                     b.ToTable("Bookings");
                 });
@@ -386,25 +385,6 @@ namespace api.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("api.Models.Booking", b =>
-                {
-                    b.HasOne("api.Models.ApplicationUser", "ApplicationUser")
-                        .WithMany()
-                        .HasForeignKey("ApplicationUserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("api.Models.Event", "Event")
-                        .WithMany("Bookings")
-                        .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("ApplicationUser");
-
-                    b.Navigation("Event");
-                });
-
             modelBuilder.Entity("api.Models.Event", b =>
                 {
                     b.HasOne("api.Models.ApplicationUser", "ApplicationUser")
@@ -422,11 +402,6 @@ namespace api.Migrations
                     b.Navigation("ApplicationUser");
 
                     b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("api.Models.Event", b =>
-                {
-                    b.Navigation("Bookings");
                 });
 
             modelBuilder.Entity("api.Models.EventCategory", b =>

@@ -29,15 +29,32 @@ namespace api.Repository
 
         public async Task<Event?> DeleteAsync(int id)
         {
-            var existingEvent = _context.Events.FirstOrDefault(x => x.Id == id);
-            if(existingEvent == null){
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try{
+                var existingEvent = _context.Events.FirstOrDefault(x => x.Id == id);
+                if(existingEvent == null){
+                    return null;
+                }
+
+                // Removing all related bookings first
+                _context.Bookings.RemoveRange(existingEvent.Bookings);
+
+                //removing the event now
+                _context.Events.Remove(existingEvent);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+
+                return existingEvent;
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                Console.WriteLine(ex.Message);
                 return null;
             }
-
-            _context.Events.Remove(existingEvent);
-            await _context.SaveChangesAsync();
-
-            return existingEvent;
+            
         }
 
         public async Task<List<Event>> GetAllAsync()

@@ -6,6 +6,7 @@ using api.Dtos.Account;
 using api.Dtos.User;
 using api.Interfaces;
 using api.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -97,7 +98,14 @@ namespace api.Controllers
                     Token = _tokenService.CreateToken(user)
                 }
             );
+        }
 
+        [Authorize]
+        [HttpPost("logout")]
+        public async Task<IActionResult> LogoutUser()
+        {
+            await _signInManager.SignOutAsync();
+            return Ok("User Logged out Successfully");
         }
     }
 }

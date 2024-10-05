@@ -98,9 +98,8 @@ namespace api.Controllers
             if(eventModel == null){
                 return NotFound("event not found");
             }
-            var deletedBookings = await _bookingRepo.DeleteAllAsync(id);
 
-            return Ok(new { message = "Event deleted successfully", deletedBookings = deletedBookings });
+            return Ok(new { message = "Event deleted successfully", deletedEvent = eventModel });
 
         }
     }
