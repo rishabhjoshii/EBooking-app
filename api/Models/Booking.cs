@@ -20,6 +20,8 @@ namespace api.Models
         [RegularExpression(@"^\d{10}$", ErrorMessage = "Phone number must be exactly 10 digits.")]
         public long PhoneNumber { get; set; }
 
+        public string ApplicationUserId { get; set; } // foreign key
+
         public int EventId { get; set; } //foreign key
         public DateTime BookedAt { get; set; }
         public int NoOfTickets { get; set; }
@@ -27,6 +29,7 @@ namespace api.Models
 
         //navigation properties
         public Event Event { get; set; }
+        public ApplicationUser ApplicationUser { get; set; }
 
     }
 }
