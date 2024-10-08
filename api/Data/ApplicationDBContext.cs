@@ -20,9 +20,9 @@ namespace api.Data
             base.OnModelCreating(builder);
 
             //adding unique contraints on email 
-            builder.Entity<IdentityUser>()
-           .HasIndex(u => u.NormalizedEmail)
-           .IsUnique();
+        //     builder.Entity<IdentityUser>()
+        //    .HasIndex(u => u.NormalizedEmail)
+        //    .IsUnique();
 
             // Add Event -> Category relationship
             builder.Entity<Event>()

@@ -1,4 +1,4 @@
-
+<!-- src/app/components/booking-form/booking-form.component.html -->
 @if (event) {<div class="container mx-auto p-4 justify-center items-center">
     <h1 class="text-2xl font-bold mb-4">Book Tickets for {{ event.eventName }}</h1>
     <form [formGroup]="bookingForm" (ngSubmit)="onSubmit()" *ngIf="!bookingSuccess" class="max-w-md">
@@ -61,3 +61,5 @@
 @else {
     <h1>Ertrtrtrt</h1>
 }
+
+
