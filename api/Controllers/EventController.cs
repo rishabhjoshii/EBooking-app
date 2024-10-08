@@ -4,9 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using api.Data;
 using api.Dtos.Event;
+using api.Extensions;
 using api.Interfaces;
 using api.Mappers;
 using api.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,10 +20,12 @@ namespace api.Controllers
     {
         private readonly IEventRepository _eventRepo;
         private readonly IBookingRepository _bookingRepo;
-        public EventController(IEventRepository eventRepo, IBookingRepository bookingRepo)
+        private readonly UserManager<ApplicationUser> _userManager;
+        public EventController(IEventRepository eventRepo, IBookingRepository bookingRepo, UserManager<ApplicationUser> userManager)
         {
             _eventRepo = eventRepo;
             _bookingRepo = bookingRepo;
+            _userManager = userManager;
         }
 
         [HttpGet]
@@ -54,6 +59,7 @@ namespace api.Controllers
             return Ok(eventModel.ToEventDto());
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateEvent([FromBody] CreateEventDto eventDto)
         {
@@ -62,30 +68,40 @@ namespace api.Controllers
                 return BadRequest(ModelState);
             }
 
-            var eventModel = eventDto.ToEventFromCreateEventDto();
+            var username = User.GetUserName();
+            var user = await _userManager.FindByNameAsync(username);
+            if (user == null)
+            {
+                return BadRequest("User not found");
+            }
+
+            var eventModel = eventDto.ToEventFromCreateEventDto(user.Id);
             
             await _eventRepo.CreateAsync(eventModel);
 
             return CreatedAtAction(nameof(GetById), new {id = eventModel.Id}, eventModel.ToEventDto());
         }
 
-        [HttpPut]
-        [Route("{id:int}")]
-        public async Task<IActionResult> UpdateEvent([FromRoute] int id, [FromBody] UpdateEventDto eventDto)
-        {
-            if(!ModelState.IsValid){
-                return BadRequest(ModelState);
-            }
+        //to update event 
+        // [Authorize]
+        // [HttpPut]
+        // [Route("{id:int}")]
+        // public async Task<IActionResult> UpdateEvent([FromRoute] int id, [FromBody] UpdateEventDto eventDto)
+        // {
+        //     if(!ModelState.IsValid){
+        //         return BadRequest(ModelState);
+        //     }
             
-            var eventModel = eventDto.ToEventFromUpdateEventDto();
-            var updatedEvent = await _eventRepo.UpdateAsync(id, eventModel);
-            if(updatedEvent == null){
-                return NotFound("event not found");
-            }
+        //     var eventModel = eventDto.ToEventFromUpdateEventDto();
+        //     var updatedEvent = await _eventRepo.UpdateAsync(id, eventModel);
+        //     if(updatedEvent == null){
+        //         return NotFound("event not found");
+        //     }
 
-            return Ok(updatedEvent.ToEventDto());
-        }
+        //     return Ok(updatedEvent.ToEventDto());
+        // }
 
+        [Authorize]
         [HttpDelete]
         [Route("{id:int}")]
         public async Task<IActionResult> DeleteEvent([FromRoute] int id)
@@ -94,9 +110,16 @@ namespace api.Controllers
                 return BadRequest(ModelState);
             }
 
-            var eventModel = await _eventRepo.DeleteAsync(id);
+            var username = User.GetUserName();
+            var user = await _userManager.FindByNameAsync(username);
+            if (user == null)
+            {
+                return BadRequest("User not found");
+            }
+
+            var eventModel = await _eventRepo.DeleteAsync(id,user.Id);
             if(eventModel == null){
-                return NotFound("event not found");
+                return NotFound("event not found or user is not the creator of the event");
             }
 
             return Ok(new { message = "Event deleted successfully", deletedEvent = eventModel });

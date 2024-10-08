@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using api.Dtos.Account;
 using api.Dtos.User;
+using api.Extensions;
 using api.Interfaces;
 using api.Models;
 using Microsoft.AspNetCore.Authorization;
@@ -34,6 +35,12 @@ namespace api.Controllers
             try{
                 if(!ModelState.IsValid)
                     return BadRequest(ModelState);
+
+                var userExisted = await _userManager.Users.FirstOrDefaultAsync(user => user.Email == registerDto.Email || user.UserName == registerDto.Username || user.PhoneNumber == registerDto.PhoneNumber);
+                if (userExisted != null)
+                {
+                    return BadRequest("Username/Email/PhoneNumber already registered");
+                }
                 
                 var newUser = new ApplicationUser{
                     UserName = registerDto.Username.ToLower(),
@@ -49,7 +56,7 @@ namespace api.Controllers
                             Message = "User created successfully",
                             UserName = newUser.UserName,
                             Email = newUser.Email,
-                            Token = _tokenService.CreateToken(newUser)
+                            Token = "please login",
                         }
                     );
                 }
@@ -106,6 +113,82 @@ namespace api.Controllers
         {
             await _signInManager.SignOutAsync();
             return Ok("User Logged out Successfully");
+        }
+
+        [Authorize]
+        [HttpGet("userinfo")]
+        public IActionResult GetUserInfo()
+        {
+            //dummy route to get the user from name
+            var username = User.GetUserName();
+            return Ok(new { Username = username });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllUsers(){
+            var users = await _userManager.Users.ToListAsync();
+            return Ok(users);
+        }
+
+
+        // [HttpDelete]
+        // public async Task<IActionResult> DeleteUser(){
+        //     var users = await _userManager.Users.ToListAsync();
+
+        //     foreach (var user in users){
+        //         await _userManager.DeleteAsync(user);
+        //     }
+
+        //     return Ok();
+        // }
+
+        [Authorize]
+        [HttpPut]
+        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserDto updateUserDto)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            //get the user from the claims
+            var username = User.GetUserName();
+            var user = await _userManager.FindByNameAsync(username);
+            if (user == null)
+            {
+                return BadRequest("User not found");
+            }
+
+            //update the user details
+            if (updateUserDto.Email != null && updateUserDto.Email != "") 
+                user.Email = updateUserDto.Email;
+            if (updateUserDto.PhoneNumber != null && updateUserDto.PhoneNumber != "") 
+                user.PhoneNumber = updateUserDto.PhoneNumber;
+            if (updateUserDto.UserName != null && updateUserDto.UserName != "")
+                user.UserName = updateUserDto.UserName;
+
+            //update the user
+            var result = await _userManager.UpdateAsync(user);
+            if (!result.Succeeded)
+            {
+                return StatusCode(500, result.Errors);
+            }
+
+            //password updates
+            if (updateUserDto.OldPassWord != null && updateUserDto.OldPassWord != "" && updateUserDto.NewPassWord != null && updateUserDto.NewPassWord != "")
+            {
+                var userUPDATED = await _userManager.ChangePasswordAsync(user, updateUserDto.OldPassWord, updateUserDto.NewPassWord);
+                if (!userUPDATED.Succeeded)
+                {
+                    return StatusCode(500, userUPDATED.Errors);
+                }
+            }
+ 
+            return Ok(new
+            {
+                message = "User Updated Successfully",
+                user
+            });
         }
     }
 }

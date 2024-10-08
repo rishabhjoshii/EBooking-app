@@ -8,6 +8,7 @@ using api.Interfaces;
 using api.Models;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
 
 namespace api.Repository
 {
@@ -27,12 +28,12 @@ namespace api.Repository
             return eventModel;
         }
 
-        public async Task<Event?> DeleteAsync(int id)
+        public async Task<Event?> DeleteAsync(int id, string userId)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
             try{
                 var existingEvent = _context.Events.FirstOrDefault(x => x.Id == id);
-                if(existingEvent == null){
+                if(existingEvent == null || existingEvent.ApplicationUserId != userId){
                     return null;
                 }
 

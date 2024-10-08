@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using api.Models;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace api.Data
 {
@@ -17,6 +18,11 @@ namespace api.Data
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+
+            //adding unique contraints on email 
+            builder.Entity<IdentityUser>()
+           .HasIndex(u => u.NormalizedEmail)
+           .IsUnique();
 
             // Add Event -> Category relationship
             builder.Entity<Event>()

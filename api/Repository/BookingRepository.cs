@@ -52,16 +52,51 @@ namespace api.Repository
 
         }
 
-        public async Task<List<Booking>> GetAllAsync()
+        public async Task<Booking?> DeleteByIdAsync(int id, string userId)
         {
-            var bookings = await _context.Bookings.ToListAsync();
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try{
+                var bookingModel = await _context.Bookings.FirstOrDefaultAsync(x => x.Id == id);
+
+                if(bookingModel == null || bookingModel.ApplicationUserId != userId){
+                    return null; // Return null if booking not found or not owned by the user
+                }
+
+                // Get the number of tickets and event details
+                var bookedTickets = bookingModel.NoOfTickets;
+                var eventId = bookingModel.EventId;
+
+                // Fetch the event related to the booking
+                var eventModel = await _context.Events.FirstOrDefaultAsync(x => x.Id == eventId);
+                if(eventModel==null) return null;
+                eventModel.BookedTickets = Math.Max(0, eventModel.BookedTickets - bookedTickets);
+
+                _context.Bookings.Remove(bookingModel);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+
+                return bookingModel;
+            }
+            catch(Exception ex){
+                await transaction.RollbackAsync();
+                Console.WriteLine(ex.Message);
+                return null;
+            }
+            
+        }
+
+        public async Task<List<Booking>> GetAllAsync(string appUserId)
+        {
+            var bookings = await _context.Bookings.Where(x => x.ApplicationUserId == appUserId).ToListAsync();
             return bookings;
         }
 
-        public async Task<Booking> GetByIdAsync(int id)
+        public async Task<Booking?> GetByIdAsync(int id)
         {
             try{
                 var bookingModel = await _context.Bookings.FirstOrDefaultAsync(x => x.Id == id);
+                if(bookingModel==null) return null;
                 return bookingModel;
             }
             catch(Exception ex){

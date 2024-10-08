@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using api.Dtos.Event;
 using api.Models;
+using Microsoft.VisualBasic;
 
 namespace api.Interfaces
 {
@@ -17,6 +18,6 @@ namespace api.Interfaces
 
         Task<Event?> UpdateAsync(int id, Event eventModel);
 
-        Task<Event?> DeleteAsync(int id);
+        Task<Event?> DeleteAsync(int id, string userId);
     }
 }

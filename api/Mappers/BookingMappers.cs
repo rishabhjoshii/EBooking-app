@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using api.Dtos.Booking;
 using api.Models;
 using Microsoft.EntityFrameworkCore.Storage.Json;
+using Microsoft.Extensions.Configuration.UserSecrets;
 
 namespace api.Mappers
 {
@@ -23,7 +24,7 @@ namespace api.Mappers
             };
         }
 
-        public static Booking ToBookingFromCreateBookingDto(this CreateBookingDto dtoModel)
+        public static Booking ToBookingFromCreateBookingDto(this CreateBookingDto dtoModel, string userId)
         {
             return new Booking{
                 Username = dtoModel.Username,
@@ -31,7 +32,8 @@ namespace api.Mappers
                 PhoneNumber = dtoModel.PhoneNumber,
                 EventId = dtoModel.EventId,
                 NoOfTickets = dtoModel.NoOfTickets,
-                PricePaid = dtoModel.PricePaid
+                PricePaid = dtoModel.PricePaid,
+                ApplicationUserId = userId,
             };
         }
     }

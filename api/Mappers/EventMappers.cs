@@ -4,12 +4,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using api.Dtos.Event;
 using api.Models;
+using Microsoft.Extensions.Configuration.UserSecrets;
 
 namespace api.Mappers
 {
     public static class EventMappers
     {
-        public static Event ToEventFromCreateEventDto(this CreateEventDto eventDto)
+        public static Event ToEventFromCreateEventDto(this CreateEventDto eventDto, string userId)
         {
             return new Event{
                 EventName = eventDto.EventName,
@@ -20,6 +21,7 @@ namespace api.Mappers
                 TicketPrice = eventDto.TicketPrice,
                 TotalTickets = eventDto.TotalTickets,
                 CategoryId = eventDto.CategoryId,
+                ApplicationUserId = userId,
             };
         }
 
