@@ -15,7 +15,7 @@ namespace api.Mappers
         {
             return new BookingDto{
                 Id = bookingModel.Id,
-                Username = bookingModel.Username,
+                Name = bookingModel.Username,
                 Email = bookingModel.Email,
                 PhoneNumber = bookingModel.PhoneNumber,
                 EventId = bookingModel.EventId,
@@ -34,6 +34,25 @@ namespace api.Mappers
                 NoOfTickets = dtoModel.NoOfTickets,
                 PricePaid = dtoModel.PricePaid,
                 ApplicationUserId = userId,
+            };
+        }
+
+        public static UserBookingDto CreateUserBookingDTOFromBooking(this Booking bookings)
+        {
+            return new UserBookingDto
+            {
+                Id = bookings.Id,
+                Name = bookings.Username,
+                Email = bookings.Email,
+                PhoneNumber = bookings.PhoneNumber,
+                EventId = bookings.EventId,
+                NoOfTickets = bookings.NoOfTickets,
+                PricePaid = bookings.PricePaid,
+                EventName = bookings.Event.EventName,
+                EventLocation = bookings.Event.Venue,
+                Description = bookings.Event.Description,
+                EventDate = bookings.Event.Date,
+                EventTime = bookings.Event.Timing
             };
         }
     }

@@ -88,7 +88,7 @@ namespace api.Repository
 
         public async Task<List<Booking>> GetAllAsync(string appUserId)
         {
-            var bookings = await _context.Bookings.Where(x => x.ApplicationUserId == appUserId).ToListAsync();
+            var bookings = await _context.Bookings.Include(b => b.Event).Where(b => b.ApplicationUserId == appUserId).ToListAsync();
             return bookings;
         }
 

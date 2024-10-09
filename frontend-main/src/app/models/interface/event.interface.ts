@@ -11,12 +11,4 @@ export interface Event {
     categoryId: number,
   }
 
-  export interface Booking{
-    username: string,
-    email: string,
-    phoneNumber: string,
-    eventId: number,
-    noOfTickets: number,
-    pricePaid: number
-  }
 

@@ -3,14 +3,9 @@
     <div class="flex items-center">
       <a href="/" class="text-white text-2xl font-bold">EventBooking</a>
     </div>
-    <!-- <div class="hidden md:flex space-x-4">
-      <a href="/" class="text-white hover:text-gray-300">Home</a>
-      <a href="/events" class="text-white hover:text-gray-300">Events</a>
-      <a href="/about" class="text-white hover:text-gray-300">About Us</a>
-      <a href="/contact" class="text-white hover:text-gray-300">Contact</a>
-    </div> -->
     <div class="flex space-x-4">
       @if (isLoggedIn()) {
+        <a routerLink="/booking-history" class="text-white hover:text-gray-300">Bookings</a>
         <button (click)="logout()" class="text-white hover:text-gray-300">Logout</button>
       } @else {
         <a routerLink="/login" class="text-white hover:text-gray-300">Login</a>

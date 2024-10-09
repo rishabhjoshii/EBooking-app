@@ -46,7 +46,7 @@ namespace api.Controllers
             }
             
             var bookings = await _bookingRepo.GetAllAsync(appUser.Id);
-            var bookingDtos = bookings.Select(s => s.ToBookingDto()).ToList();
+            var bookingDtos = bookings.Select(s => s.CreateUserBookingDTOFromBooking()).ToList();
 
             return Ok(bookingDtos);
         }

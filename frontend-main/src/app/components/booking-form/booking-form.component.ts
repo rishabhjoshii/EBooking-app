@@ -66,6 +66,7 @@ export class BookingFormComponent implements OnInit {
 
   onSubmit(): void {
     if (this.bookingForm.valid && this.event) {
+      console.log("control reaching onsubmit");
       const bookingData = {
         username: this.bookingForm.get('name')?.value,
         email: this.bookingForm.get('email')?.value,

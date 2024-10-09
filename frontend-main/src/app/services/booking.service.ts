@@ -11,14 +11,36 @@ export class BookingService {
   constructor(private http : HttpClient) { }
 
   createBooking(bookingData: any) : Observable<any> {
-    const token = localStorage.getItem('token');
-
+    console.log("control reaching service");
+    const user = localStorage.getItem('currentUser');
+    if(user)
+    {
+      var usernew= JSON.parse(user);
+      var token=usernew.token;
+    }
+    
+    console.log(token);
     const headers = new HttpHeaders({
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`  // Add the token to the Authorization header
       
     });
     
-    return this.http.post("http://localhost:5241/api/booking", bookingData, { headers, withCredentials:true });
+    return this.http.post("http://localhost:5241/api/booking", bookingData, { headers });
   }
+
+  getUserBookings(): Observable<any> {
+    const user = localStorage.getItem('currentUser');
+    if(user)
+    {
+      var usernew= JSON.parse(user);
+      var token=usernew.token;
+    }
+
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.get('http://localhost:5241/api/booking', { headers });
+  }
+
 }

@@ -9,7 +9,7 @@ namespace api.Dtos.Booking
     public class BookingDto
     {
         public int Id { get; set; }
-        public string Username { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public long PhoneNumber { get; set; }
         public int EventId { get; set; } 
