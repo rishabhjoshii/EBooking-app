@@ -1,5 +1,5 @@
 
-<h1 class="text-center font-bold text-3xl my-2">Booking History</h1>
+<h1 class="text-center font-bold text-3xl my-2">MY Bookings</h1>
 <div class="flex flex-col mx-3 gap-6">
   @for (booking of bookingHistory; track $index) {
   <div class="shadow-xl px-3 py-2">
@@ -62,6 +62,11 @@
         <p class="text-sm text-gray-600">Tickets</p>
         <p class="text-lg font-bold text-gray-800">{{ booking.noOfTickets }}</p>
       </div>
+    </div>
+
+    <!-- Cancel Booking Button -->
+    <div class="flex justify-end mt-2">
+      <button class="bg-red-500 text-white px-4 py-2 rounded" (click)="cancelBooking(booking.id)">Cancel</button>
     </div>
     
   </div>

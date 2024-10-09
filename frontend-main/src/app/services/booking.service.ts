@@ -43,4 +43,17 @@ export class BookingService {
     return this.http.get('http://localhost:5241/api/booking', { headers });
   }
 
+  cancelBooking(bookingId: string): Observable<any> {
+    const user = localStorage.getItem('currentUser');
+    if(user)
+    {
+      var usernew= JSON.parse(user);
+      var token=usernew.token;
+    }
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`
+    });
+    return this.http.delete(`http://localhost:5241/api/booking/${bookingId}`, { headers , responseType : 'text' });
+  }
+
 }
