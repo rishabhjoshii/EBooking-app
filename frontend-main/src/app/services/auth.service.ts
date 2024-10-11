@@ -7,7 +7,7 @@ import { LoginRequest, SignupRequest, User } from '../models/interface/user.inte
   providedIn: 'root'
 })
 export class AuthService {
-  private currentUserSubject: BehaviorSubject<User | null>;
+  public currentUserSubject: BehaviorSubject<User | null>;
   public currentUser: Observable<User | null>;
   private signupApiUrl = 'http://localhost:5241/api/account/register';
   private loginApiUrl = 'http://localhost:5241/api/account/login';
@@ -32,15 +32,6 @@ export class AuthService {
       })
     );
   }
-
-  // signup(signupRequest: SignupRequest): Observable<User> {
-  //   return this.http.post<any>(`${this.signupApiUrl}`, signupRequest).pipe(
-  //     tap(user => {
-  //       //localStorage.setItem('currentUser', JSON.stringify(user));  // response from the signup api doesn't contains token so no point in storing this response to local storage
-  //       // this.currentUserSubject.next(user);
-  //     })
-  //   );
-  // }
 
   signup(signupRequest: SignupRequest): Observable<User> {
     return this.http.post<any>(`${this.signupApiUrl}`, signupRequest);
