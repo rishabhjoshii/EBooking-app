@@ -1,0 +1,27 @@
+
+<div *ngIf="errorMessage; else profileContent" class="p-4 text-red-500">
+  <p>{{ errorMessage }}</p>
+</div>
+
+<ng-template #profileContent>
+  <div class="max-w-md mx-auto p-6 bg-white rounded-lg shadow-md mt-6">
+    <h2 class="text-2xl font-semibold mb-4 text-center">User Profile</h2>
+    
+    <div class="text-center">
+      <p class="mb-2"><strong>Username:</strong> {{ userProfile.userName }}</p>
+      <p class="mb-2"><strong>Email:</strong> {{ userProfile.email }}</p>
+      <p class="mb-4"><strong>Phone Number:</strong> {{ userProfile.phoneNumber }}</p>
+    </div>
+
+    <!-- Edit Profile Button -->
+    <div class="text-center">
+      <button 
+        (click)="onEditProfile()" 
+        class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+      >
+        Edit Profile
+      </button>
+    </div>
+  </div>
+</ng-template>
+

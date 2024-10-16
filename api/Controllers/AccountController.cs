@@ -117,11 +117,21 @@ namespace api.Controllers
 
         [Authorize]
         [HttpGet("userinfo")]
-        public IActionResult GetUserInfo()
+        public async Task<IActionResult> GetUserInfo()
         {
-            //dummy route to get the user from name
             var username = User.GetUserName();
-            return Ok(new { Username = username });
+            var appUser = await _userManager.FindByNameAsync(username);
+            if (appUser == null)
+            {
+                return Unauthorized("User not found");
+            }
+            
+            return Ok(new UserInfoDto{
+                message = "user info fetched successfully",
+                UserName = appUser.UserName,
+                Email = appUser.Email,
+                PhoneNumber = appUser.PhoneNumber
+            });
         }
 
         [HttpGet]
@@ -183,12 +193,15 @@ namespace api.Controllers
                     return StatusCode(500, userUPDATED.Errors);
                 }
             }
- 
-            return Ok(new
-            {
-                message = "User Updated Successfully",
-                user
-            });
+            
+            return Ok(
+                new NewUserDto{
+                    Message = "profile updated successfully",
+                    UserName = user.UserName,
+                    Email = user.Email,
+                    Token = _tokenService.CreateToken(user)
+                }
+            );
         }
     }
 }

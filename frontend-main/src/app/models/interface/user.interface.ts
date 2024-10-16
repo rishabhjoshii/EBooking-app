@@ -16,3 +16,11 @@ export interface User {
     password: string;
     phoneNumber: string;
   }
+
+  export interface UserProfile {
+    userName: string;
+    email: string;
+    PhoneNumber: string;
+    token?: string;
+    message?:string;
+  }
