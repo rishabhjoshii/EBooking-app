@@ -60,7 +60,8 @@ export class SignupComponent {
           this.router.navigate(['/login']);
         },
         error: (err) => {
-          this.error = 'Error creating account. Please try again.';
+          console.log("error here:" ,err);
+          this.error = err.error;
         }
       });
     }

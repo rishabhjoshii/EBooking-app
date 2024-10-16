@@ -45,4 +45,16 @@ export class AuthService {
   isLoggedIn(): boolean {
     return !!this.currentUserValue;
   }
+
+  isAuthenticated(): boolean {
+    const user = localStorage.getItem('currentUser');
+    if(user)
+    {
+      var usernew= JSON.parse(user);
+      var token=usernew.token;
+    }
+    else return false;
+
+    return token!="";
+  }
 }

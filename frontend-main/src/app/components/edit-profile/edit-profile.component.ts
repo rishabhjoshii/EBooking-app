@@ -35,21 +35,21 @@ export class EditProfileComponent implements OnInit {
     const formValue = this.profileForm.value;
     
     // Remove empty fields
-    const updateData = Object.keys(formValue).reduce((acc: any, key) => {
-      if (formValue[key]) {
-        acc[key] = formValue[key];
-      }
-      return acc;
-    }, {});
+    // const updateData = Object.keys(formValue).reduce((acc: any, key) => {
+    //   if (formValue[key]) {
+    //     acc[key] = formValue[key];
+    //   }
+    //   return acc;
+    // }, {});
 
     // Check if both password fields are filled if either is present
-    if ((updateData.oldPassWord && !updateData.newPassWord) || 
-        (!updateData.oldPassWord && updateData.newPassWord)) {
+    if ((formValue.oldPassWord && !formValue.newPassWord) || 
+        (!formValue.oldPassWord && formValue.newPassWord)) {
       this.updateError = 'Both old and new passwords are required to update password';
       return;
     }
 
-    this.userService.updateProfile(updateData).subscribe({
+    this.userService.updateProfile(formValue).subscribe({
       next: (response) => {
         this.updateSuccess = true;
         this.updateError = '';
@@ -57,8 +57,9 @@ export class EditProfileComponent implements OnInit {
         alert("profile updated successfully");
         this.router.navigate(['/profile']);
       },
-      error: (error) => {
-        this.updateError = error.error.message || 'An error occurred while updating profile';
+      error: (err) => {
+        console.log("updatePRofile error:", err);
+        this.updateError = err.error.message || 'An error occurred while updating profile';
         this.updateSuccess = false;
       }
     });

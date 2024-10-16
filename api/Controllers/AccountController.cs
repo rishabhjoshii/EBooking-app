@@ -193,13 +193,7 @@ namespace api.Controllers
                     return StatusCode(500, userUPDATED.Errors);
                 }
             }
- 
-            // return Ok(new
-            // {
-            //     message = "User Updated Successfully",
-            //     user
-            // });
-
+            
             return Ok(
                 new NewUserDto{
                     Message = "profile updated successfully",
