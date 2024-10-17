@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using api.Data;
 using api.Dtos.Event;
+using api.Dtos.Image;
 using api.Extensions;
 using api.Interfaces;
 using api.Mappers;
@@ -22,11 +23,14 @@ namespace api.Controllers
         private readonly IEventRepository _eventRepo;
         private readonly IBookingRepository _bookingRepo;
         private readonly UserManager<ApplicationUser> _userManager;
-        public EventController(IEventRepository eventRepo, IBookingRepository bookingRepo, UserManager<ApplicationUser> userManager)
+
+        private readonly IImageRepository _imageRepo;
+        public EventController(IEventRepository eventRepo, IBookingRepository bookingRepo, UserManager<ApplicationUser> userManager, IImageRepository imageRepo)
         {
             _eventRepo = eventRepo;
             _bookingRepo = bookingRepo;
             _userManager = userManager;
+            _imageRepo = imageRepo;
         }
 
         [HttpGet]
@@ -62,8 +66,10 @@ namespace api.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> CreateEvent([FromBody] CreateEventDto eventDto)
+        public async Task<IActionResult> CreateEvent([FromForm] CreateEventDto eventDto, [FromForm] ImageUploadRequestDto imageUploadRequestDto)
         {
+            ValidateFileUpload(imageUploadRequestDto);
+
             if(!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -78,29 +84,29 @@ namespace api.Controllers
 
             var eventModel = eventDto.ToEventFromCreateEventDto(user.Id);
             
-            await _eventRepo.CreateAsync(eventModel);
+            var createdEvent = await _eventRepo.CreateAsync(eventModel);
+
+            foreach (var file in imageUploadRequestDto.Files)
+            {
+                // Optionally, generate a unique file name here if needed
+                var uniqueFileName = $"{Path.GetFileNameWithoutExtension(imageUploadRequestDto.FileName)}_{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+
+                var imageDomainModel = new Image
+                {
+                    File = file,
+                    FileExtension = Path.GetExtension(file.FileName),
+                    FileSizeInBytes = file.Length,
+                    FileName = uniqueFileName,  // Use the same file name or generate unique ones
+                    FileDescription = imageUploadRequestDto.FileDescription,
+                    EventId = createdEvent.Id,
+                };
+
+                await _imageRepo.Upload(imageDomainModel);
+            }
+
 
             return CreatedAtAction(nameof(GetById), new {id = eventModel.Id}, eventModel.ToEventDto());
         }
-
-        //to update event 
-        // [Authorize]
-        // [HttpPut]
-        // [Route("{id:int}")]
-        // public async Task<IActionResult> UpdateEvent([FromRoute] int id, [FromBody] UpdateEventDto eventDto)
-        // {
-        //     if(!ModelState.IsValid){
-        //         return BadRequest(ModelState);
-        //     }
-            
-        //     var eventModel = eventDto.ToEventFromUpdateEventDto();
-        //     var updatedEvent = await _eventRepo.UpdateAsync(id, eventModel);
-        //     if(updatedEvent == null){
-        //         return NotFound("event not found");
-        //     }
-
-        //     return Ok(updatedEvent.ToEventDto());
-        // }
 
         [Authorize]
         [HttpDelete]
@@ -125,6 +131,35 @@ namespace api.Controllers
 
             return Ok(new { message = "Event deleted successfully", deletedEvent = eventModel });
 
+        }
+
+
+        // function to validate image upload
+        private void ValidateFileUpload(ImageUploadRequestDto request)
+        {
+            var allowedExtensions = new string[] { ".jpeg", ".jpg", ".png"};
+
+            foreach (var file in request.Files)
+            {
+                // Check if the file is not null
+                if (file == null)
+                {
+                    ModelState.AddModelError("file", "One or more files are missing.");
+                    continue;
+                }
+
+                // Check if the image extension is valid
+                if (!allowedExtensions.Contains(Path.GetExtension(file.FileName).ToLower()))
+                {
+                    ModelState.AddModelError("file", $"Unsupported file extension: {file.FileName}");
+                }
+
+                // Validate file size (max 5MB)
+                if (file.Length > 5242880)
+                {
+                    ModelState.AddModelError("file", $"File size exceeds 5MB: {file.FileName}");
+                }
+            }
         }
     }
 }

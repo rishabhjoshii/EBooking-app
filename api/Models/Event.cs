@@ -13,6 +13,7 @@ namespace api.Models
         public int Id { get; set; }
 
         [Required]
+        [MaxLength(100)]
         public string EventName { get; set; } = string.Empty;
 
         [Required]
@@ -20,9 +21,19 @@ namespace api.Models
 
         [Required]
         public TimeSpan Timing { get; set; }
+
+        [Required]
         public string Venue { get; set; } = "TBD";
+
+        [Required]
+        [MaxLength(2000)]
         public string Description { get; set; } = string.Empty;
-        public int TicketPrice { get; set; }
+
+        [Required]
+        [Column(TypeName = "decimal(18,2)")]
+        public decimal TicketPrice { get; set; }
+
+        [Required]
         public int TotalTickets { get; set; }
         public int BookedTickets { get; set; }
         public DateTime CreatedAt { get; set; }
@@ -44,5 +55,7 @@ namespace api.Models
 
         [ForeignKey("ApplicationUserId")]
         public virtual ApplicationUser ApplicationUser { get; set; } // navigation property
+
+        public virtual ICollection<Image> Images { get; set; } = new List<Image>();
     }
 }

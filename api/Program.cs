@@ -83,9 +83,11 @@ builder.Services.AddAuthentication(options => {  //manually added lines all
 });
 
 builder.Services.AddControllers();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IEventRepository, EventRepository>();
 builder.Services.AddScoped<IBookingRepository, BookingRepository>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IImageRepository, LocalImageRepository>();
 
 var app = builder.Build();
 

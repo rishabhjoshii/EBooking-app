@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using api.Dtos.Booking;
+using api.Dtos.Image;
 using api.Extensions;
 using api.Interfaces;
 using api.Mappers;
@@ -113,5 +114,7 @@ namespace api.Controllers
             }
             return Ok("booking deleted successfully");
         }
+
+        
     }
 }

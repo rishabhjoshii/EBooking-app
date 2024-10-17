@@ -14,15 +14,11 @@ namespace api.Data
         public DbSet<Event> Events { get; set; }
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<EventCategory> EventCategories { get; set; }
+        public DbSet<Image> Images { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
-
-            //adding unique contraints on email 
-        //     builder.Entity<IdentityUser>()
-        //    .HasIndex(u => u.NormalizedEmail)
-        //    .IsUnique();
 
             // Add Event -> Category relationship
             builder.Entity<Event>()
@@ -51,14 +47,15 @@ namespace api.Data
                 .WithMany()
                 .HasForeignKey(b => b.ApplicationUserId)
                 .OnDelete(DeleteBehavior.NoAction);
-        }
+
+            // Event -> Image relationship (One-to-Many)
+            builder.Entity<Image>()
+                .HasOne(img => img.Event)
+                .WithMany(e => e.Images) // An event can have many images
+                .HasForeignKey(img => img.EventId) // Foreign key
+                .OnDelete(DeleteBehavior.Cascade); // Images should be deleted when the event is deleted
+            }
     }
 }
 
-            // // Seed initial roles for authorization
-            // List<IdentityRole> roles = new List<IdentityRole>{
-            //     new IdentityRole { Name = "Admin", NormalizedName = "ADMIN" },
-            //     new IdentityRole { Name = "User", NormalizedName = "USER" }
-            // };
-            // builder.Entity<IdentityRole>().HasData(roles);
  
