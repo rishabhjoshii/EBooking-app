@@ -82,30 +82,38 @@ namespace api.Controllers
                 return BadRequest("User not found");
             }
 
-            var eventModel = eventDto.ToEventFromCreateEventDto(user.Id);
-            
-            var createdEvent = await _eventRepo.CreateAsync(eventModel);
-
-            foreach (var file in imageUploadRequestDto.Files)
+            try
             {
-                // Optionally, generate a unique file name here if needed
-                var uniqueFileName = $"{Path.GetFileNameWithoutExtension(imageUploadRequestDto.FileName)}_{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
+                var eventModel = eventDto.ToEventFromCreateEventDto(user.Id);
+            
+                var createdEvent = await _eventRepo.CreateAsync(eventModel);
 
-                var imageDomainModel = new Image
+                foreach (var file in imageUploadRequestDto.Files)
                 {
-                    File = file,
-                    FileExtension = Path.GetExtension(file.FileName),
-                    FileSizeInBytes = file.Length,
-                    FileName = uniqueFileName,  // Use the same file name or generate unique ones
-                    FileDescription = imageUploadRequestDto.FileDescription,
-                    EventId = createdEvent.Id,
-                };
 
-                await _imageRepo.Upload(imageDomainModel);
+                    var imageDomainModel = new Image
+                    {
+                        File = file,
+                        FileExtension = Path.GetExtension(file.FileName),
+                        FileSizeInBytes = file.Length,
+                        FileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}",  // Generating GUID filename
+                        FileDescription = null,
+                        EventId = createdEvent.Id,
+                    };
+
+                    await _imageRepo.Upload(imageDomainModel);
+                }
+
+
+                return CreatedAtAction(nameof(GetById), new {id = eventModel.Id}, eventModel.ToEventDto());
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return StatusCode(500, "An error occurred while creating the event.");
             }
 
-
-            return CreatedAtAction(nameof(GetById), new {id = eventModel.Id}, eventModel.ToEventDto());
+            
         }
 
         [Authorize]
@@ -137,29 +145,36 @@ namespace api.Controllers
         // function to validate image upload
         private void ValidateFileUpload(ImageUploadRequestDto request)
         {
-            var allowedExtensions = new string[] { ".jpeg", ".jpg", ".png"};
+            try{
+                var allowedExtensions = new string[] { ".jpeg", ".jpg", ".png"};
 
-            foreach (var file in request.Files)
-            {
-                // Check if the file is not null
-                if (file == null)
+                foreach (var file in request.Files)
                 {
-                    ModelState.AddModelError("file", "One or more files are missing.");
-                    continue;
-                }
+                    // Check if the file is not null
+                    if (file == null)
+                    {
+                        ModelState.AddModelError("file", "One or more files are missing.");
+                        continue;
+                    }
 
-                // Check if the image extension is valid
-                if (!allowedExtensions.Contains(Path.GetExtension(file.FileName).ToLower()))
-                {
-                    ModelState.AddModelError("file", $"Unsupported file extension: {file.FileName}");
-                }
+                    // Check if the image extension is valid
+                    if (!allowedExtensions.Contains(Path.GetExtension(file.FileName).ToLower()))
+                    {
+                        ModelState.AddModelError("file", $"Unsupported file extension: {file.FileName}");
+                    }
 
-                // Validate file size (max 5MB)
-                if (file.Length > 5242880)
-                {
-                    ModelState.AddModelError("file", $"File size exceeds 5MB: {file.FileName}");
+                    // Validate file size (max 5MB)
+                    if (file.Length > 5242880)
+                    {
+                        ModelState.AddModelError("file", $"File size exceeds 5MB: {file.FileName}");
+                    }
                 }
             }
+            catch(Exception ex){
+                Console.WriteLine(ex.ToString());
+                ModelState.AddModelError("file", "some error occured regarding file upload");
+            }
+            
         }
     }
 }

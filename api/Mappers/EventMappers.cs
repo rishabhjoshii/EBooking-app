@@ -52,6 +52,7 @@ namespace api.Mappers
                 TotalTickets = eventModel.TotalTickets,
                 BookedTickets = eventModel.BookedTickets,
                 CategoryId = eventModel.CategoryId,
+                ImagePaths = eventModel.Images.Select(e => e.FilePath).ToList(),
             };
         }
 

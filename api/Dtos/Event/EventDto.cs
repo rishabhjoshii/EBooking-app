@@ -21,5 +21,7 @@ namespace api.Dtos.Event
 
         public int BookedTickets { get; set; }
         public int CategoryId { get; set; }
+
+        public List<string> ImagePaths { get; set; } = new List<string>();
     }
 }

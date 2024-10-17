@@ -20,10 +20,11 @@ namespace api.Dtos.Event
         [Required]
         public string Venue { get; set; } = "TBD";
 
+        [Required]
         public string Description { get; set; } = string.Empty;
 
         [Required]
-        public int TicketPrice { get; set; } = 0;
+        public decimal TicketPrice { get; set; } = 0;
 
         [Required]
         public int TotalTickets { get; set; } = 0;

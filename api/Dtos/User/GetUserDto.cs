@@ -5,16 +5,14 @@ using System.Threading.Tasks;
 
 namespace api.Dtos.User
 {
-    public class UpdateUserDto
+    public class GetUserDto
     {
         public string? UserName { get; set; }
+
         public string? Email { get; set; }
 
         public string? PhoneNumber { get; set; }
 
-        public string? OldPassWord { get; set; }
-
-        public string? NewPassWord { get; set; }
-        public IFormFile? ProfileImage { get; set; } // Add this line for image upload
+        public string? ProfileImageUrl { get; set; }
     }
 }

@@ -12,12 +12,39 @@ import { Observable } from 'rxjs';
   templateUrl: './event-list.component.html',
   styleUrl: './event-list.component.css'
 })
+// export class EventListComponent implements OnInit {
+//   events: Event[] = [];
+
+//   constructor(private eventService: EventService) {}
+
+//   ngOnInit(): void {
+//     this.eventService.getEvents().subscribe(events => this.events = events);
+//   }
+// }
+
 export class EventListComponent implements OnInit {
   events: Event[] = [];
+  currentImageIndex: { [key: number]: number } = {}; // Track current image index for each event
 
   constructor(private eventService: EventService) {}
 
   ngOnInit(): void {
-    this.eventService.getEvents().subscribe(events => this.events = events);
+    this.eventService.getEvents().subscribe(events => {
+      this.events = events;
+      // Initialize current image index for each event
+      this.events.forEach(event => {
+        this.currentImageIndex[event.id] = 0; // Set initial index to 0
+      });
+    });
+  }
+
+  prevImage(event: Event): void {
+    const index = event.id;
+    this.currentImageIndex[index] = (this.currentImageIndex[index] - 1 + event.imagePaths.length) % event.imagePaths.length;
+  }
+
+  nextImage(event: Event): void {
+    const index = event.id;
+    this.currentImageIndex[index] = (this.currentImageIndex[index] + 1) % event.imagePaths.length;
   }
 }

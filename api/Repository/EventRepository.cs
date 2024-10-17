@@ -60,14 +60,14 @@ namespace api.Repository
 
         public async Task<List<Event>> GetAllAsync()
         {
-            var events = await _context.Events.ToListAsync();
+            var events = await _context.Events.Include(e => e.Images).ToListAsync();
             return events;
         }
 
         public async Task<Event?> GetByIdAsync(int id)
         {
             try{
-                var eventModel = await _context.Events.FirstOrDefaultAsync(x => x.Id == id);
+                var eventModel = await _context.Events.Include(e => e.Images).FirstOrDefaultAsync(x => x.Id == id);
                 return eventModel;
             }
             catch(Exception ex){

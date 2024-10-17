@@ -9,5 +9,9 @@ namespace api.Models
     public class ApplicationUser : IdentityUser
     {
         public string? PhoneNumber { get; set; }
+
+        // Navigation property for optional profile image
+        public UserProfileImage? ProfileImage { get; set; }
+
     }
 }

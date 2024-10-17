@@ -15,6 +15,7 @@ namespace api.Data
         public DbSet<Booking> Bookings { get; set; }
         public DbSet<EventCategory> EventCategories { get; set; }
         public DbSet<Image> Images { get; set; }
+        public DbSet<UserProfileImage> UserProfileImages { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -55,6 +56,9 @@ namespace api.Data
                 .HasForeignKey(img => img.EventId) // Foreign key
                 .OnDelete(DeleteBehavior.Cascade); // Images should be deleted when the event is deleted
             }
+
+            
+            
     }
 }
 

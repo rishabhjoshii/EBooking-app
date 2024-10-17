@@ -18,7 +18,7 @@ namespace api.Dtos.Event
         public TimeSpan Timing { get; set; }
         public string Venue { get; set; } = "TBD";
         public string Description { get; set; } = string.Empty;
-        public int TicketPrice { get; set; } = 0;
+        public decimal TicketPrice { get; set; } = 0;
         public int TotalTickets { get; set; } = 0;
         public int CategoryId { get; set; } = 1;
     }

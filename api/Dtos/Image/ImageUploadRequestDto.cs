@@ -12,8 +12,5 @@ namespace api.Dtos.Image
         [Required]
          public List<IFormFile> Files { get; set; }  // Accept multiple files
 
-         [Required]
-        public string FileName { get; set; }  // Only one filename for all files
-        public string? FileDescription { get; set; }  // Only one description for all files
     }
 }

@@ -9,6 +9,7 @@ export interface Event {
     totalTickets: number,
     bookedTickets: number,
     categoryId: number,
+    imagePaths: string[],
   }
 
 

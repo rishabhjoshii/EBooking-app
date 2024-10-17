@@ -22,11 +22,14 @@ namespace api.Controllers
         private readonly ITokenService _tokenService;
         private readonly SignInManager<ApplicationUser> _signInManager;
 
-        public AccountController(UserManager<ApplicationUser> userManager, ITokenService tokenService, SignInManager<ApplicationUser> signInManager) 
+        private readonly IImageRepository _imageRepo;
+
+        public AccountController(UserManager<ApplicationUser> userManager, ITokenService tokenService, SignInManager<ApplicationUser> signInManager, IImageRepository imageRepo) 
         {
             _userManager = userManager;
             _tokenService = tokenService;
             _signInManager = signInManager;
+            _imageRepo = imageRepo;
         }
 
         [HttpPost("register")]
@@ -97,12 +100,16 @@ namespace api.Controllers
 
             }
 
+            var userProfileImage = await _imageRepo.GetUserProfileImageByUserId(user.Id);
+            string profileImageUrl = userProfileImage?.FilePath; 
+
             return Ok(
                 new NewUserDto{
                     Message = "login successful",
                     UserName = user.UserName,
                     Email = user.Email,
-                    Token = _tokenService.CreateToken(user)
+                    Token = _tokenService.CreateToken(user),
+                    ProfileImageUrl = profileImageUrl,
                 }
             );
         }
@@ -135,9 +142,18 @@ namespace api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllUsers(){
-            var users = await _userManager.Users.ToListAsync();
-            return Ok(users);
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await _userManager.Users.Include(u => u.ProfileImage).ToListAsync();
+            var userDtos = users.Select(user => new GetUserDto
+            {
+                UserName = user.UserName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                ProfileImageUrl = user.ProfileImage?.FilePath
+            }).ToList();
+
+            return Ok(userDtos);
         }
 
 
@@ -154,8 +170,10 @@ namespace api.Controllers
 
         [Authorize]
         [HttpPut]
-        public async Task<IActionResult> UpdateUser([FromBody] UpdateUserDto updateUserDto)
+        public async Task<IActionResult> UpdateUser([FromForm] UpdateUserDto updateUserDto)
         {
+            ValidateFileUpload(updateUserDto.ProfileImage);
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -170,13 +188,14 @@ namespace api.Controllers
             }
 
             //update the user details
-            if (updateUserDto.Email != null && updateUserDto.Email != "") 
+            if (!string.IsNullOrEmpty(updateUserDto.Email))
                 user.Email = updateUserDto.Email;
-            if (updateUserDto.PhoneNumber != null && updateUserDto.PhoneNumber != "") 
+            if (!string.IsNullOrEmpty(updateUserDto.PhoneNumber))
                 user.PhoneNumber = updateUserDto.PhoneNumber;
-            if (updateUserDto.UserName != null && updateUserDto.UserName != "")
+            if (!string.IsNullOrEmpty(updateUserDto.UserName))
                 user.UserName = updateUserDto.UserName;
 
+            
             //update the user
             var result = await _userManager.UpdateAsync(user);
             if (!result.Succeeded)
@@ -193,15 +212,78 @@ namespace api.Controllers
                     return StatusCode(500, userUPDATED.Errors);
                 }
             }
+
+            string profileImageUrl = null;
+            // Handle profile image update
+            if (updateUserDto.ProfileImage != null && updateUserDto.ProfileImage.Length > 0)
+            {
+                // Check if a profile image already exists for the user
+                var existingProfileImage = await _imageRepo.GetUserProfileImageByUserId(user.Id);
+                if (existingProfileImage != null)
+                {
+                    // Delete the existing file if necessary
+                    // var oldFilePath = Path.Combine(webHostEnvironment.ContentRootPath, "Images", existingProfileImage.FileName);
+                    // if (System.IO.File.Exists(oldFilePath))
+                    // {
+                    //     System.IO.File.Delete(oldFilePath);
+                    // }
+
+                    // Update the existing profile image details
+                    existingProfileImage.File = updateUserDto.ProfileImage;
+                    existingProfileImage.FileExtension = Path.GetExtension(updateUserDto.ProfileImage.FileName);
+                    existingProfileImage.FileSizeInBytes = updateUserDto.ProfileImage.Length;
+                    existingProfileImage.FileName = $"{Guid.NewGuid()}{Path.GetExtension(updateUserDto.ProfileImage.FileName)}";  // Generating new GUID filename
+
+                    var updatedProfileImage = await _imageRepo.UpdateUserProfileImage(existingProfileImage);
+                    profileImageUrl = updatedProfileImage.FilePath;
+                }
+                else
+                {
+                    // Create new profile image entry if none exists
+                    var newProfileImage = new UserProfileImage
+                    {
+                        File = updateUserDto.ProfileImage,
+                        FileExtension = Path.GetExtension(updateUserDto.ProfileImage.FileName),
+                        FileSizeInBytes = updateUserDto.ProfileImage.Length,
+                        FileName = $"{Guid.NewGuid()}{Path.GetExtension(updateUserDto.ProfileImage.FileName)}",  // Generating GUID filename
+                        ApplicationUserId = user.Id,
+                    };
+
+                    var updatedProfileImage = await _imageRepo.UploadUserProfileImage(newProfileImage);
+                    profileImageUrl = updatedProfileImage.FilePath;
+                }
+            }
             
             return Ok(
                 new NewUserDto{
                     Message = "profile updated successfully",
                     UserName = user.UserName,
                     Email = user.Email,
-                    Token = _tokenService.CreateToken(user)
+                    Token = _tokenService.CreateToken(user),
+                    ProfileImageUrl = profileImageUrl,
                 }
             );
+        }
+
+        // function to validate image upload
+        private void ValidateFileUpload(IFormFile file)
+        {
+            var allowedExtensions = new string[] { ".jpeg", ".jpg", ".png"};
+
+            try{
+                if (!allowedExtensions.Contains(Path.GetExtension(file.FileName).ToLower()))
+                {
+                    ModelState.AddModelError("file", $"Unsupported file extension: {file.FileName}");
+                }
+
+                if (file.Length > 2097152)
+                {
+                    ModelState.AddModelError("file", $"File size exceeds 2MB: {file.FileName}");
+                }
+            }
+            catch(Exception ex){
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 }
