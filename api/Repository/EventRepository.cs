@@ -89,6 +89,50 @@ namespace api.Repository
             
         }
 
+        public async Task<List<Event>> SearchEventsAsync(string searchText)
+        {
+            var events = await _context.Events
+                .Include(e => e.Images)
+                .Include(e => e.TicketTypes)
+                .Include(e => e.ApplicationUser)
+                .Where(e => 
+                    EF.Functions.Like(e.EventName, $"%{searchText}%") ||
+                    EF.Functions.Like(e.Venue, $"%{searchText}%") ||
+                    EF.Functions.Like(e.ApplicationUser.FirstName, $"%{searchText}%") ||
+                    EF.Functions.Like(e.ApplicationUser.LastName, $"%{searchText}%"))
+                .ToListAsync();
+
+            return events;
+        }
+
+        public async Task<List<Event>> GetAllFilteredAsync(DateTime? startDate, DateTime? endDate, int? categoryId)
+        {
+            var query = _context.Events
+                                .Include(e => e.Images)
+                                .Include(e => e.TicketTypes)
+                                .Include(e => e.ApplicationUser)
+                                .AsQueryable();
+
+            // Filter by date range
+            if (startDate.HasValue)
+            {
+                query = query.Where(e => e.Date >= startDate.Value);
+            }
+            if (endDate.HasValue)
+            {
+                query = query.Where(e => e.Date <= endDate.Value);
+            }
+            
+            // Filter by event category
+            if (categoryId.HasValue)
+            {
+                query = query.Where(e => e.CategoryId == categoryId.Value);
+            }
+
+            return await query.ToListAsync();
+        }
+
+
         // public async Task<Event?> UpdateAsync(int id, Event eventModel)
         // {
         //     try{

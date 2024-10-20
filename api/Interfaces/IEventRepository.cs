@@ -11,13 +11,11 @@ namespace api.Interfaces
     public interface IEventRepository
     {
         Task<List<Event>> GetAllAsync();
-
         Task<Event?> GetByIdAsync(int id);
-
         Task<Event> CreateAsync(Event eventModel);
-
         // Task<Event?> UpdateAsync(int id, Event eventModel);
-
         Task<Event?> DeleteAsync(int id, string userId);
+        Task<List<Event>> SearchEventsAsync(string searchText);
+        Task<List<Event>> GetAllFilteredAsync(DateTime? startDate, DateTime? endDate, int? categoryId);
     }
 }

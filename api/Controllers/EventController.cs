@@ -100,30 +100,63 @@ namespace api.Controllers
             }            
         }
 
-        [Authorize]
-        [HttpDelete]
-        [Route("{id:int}")]
-        public async Task<IActionResult> DeleteEvent([FromRoute] int id)
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchEvents([FromQuery] string searchText)
         {
-            if(!ModelState.IsValid){
+            if (string.IsNullOrWhiteSpace(searchText))
+            {
+                return BadRequest("Search text cannot be empty");
+            }
+
+            var events = await _eventRepo.SearchEventsAsync(searchText);
+            
+            if (events == null || events.Count <= 0)
+            {
+                return NotFound("No events found matching the search criteria.");
+            }
+
+            var eventDtos = events.Select(s => s.ToEventDto()).ToList();
+
+            return Ok(eventDtos);
+        }
+
+        [HttpGet("filtered")]
+        public async Task<IActionResult> GetAllFiltered([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate, [FromQuery] int? categoryId)
+        {
+            if (!ModelState.IsValid)
+            {
                 return BadRequest(ModelState);
             }
 
-            var username = User.GetUserName();
-            var user = await _userManager.FindByNameAsync(username);
-            if (user == null)
-            {
-                return BadRequest("User not found");
-            }
+            var events = await _eventRepo.GetAllFilteredAsync(startDate, endDate, categoryId);
+            var eventDtos = events.Select(s => s.ToEventDto()).ToList();
 
-            var eventModel = await _eventRepo.DeleteAsync(id,user.Id);
-            if(eventModel == null){
-                return NotFound("event not found or user is not the creator of the event");
-            }
-
-            return Ok(new { message = "Event deleted successfully", deletedEvent = eventModel });
-
+            return Ok(eventDtos);
         }
+
+
+        // [Authorize]
+        // [HttpDelete]
+        // [Route("{id:int}")]
+        // public async Task<IActionResult> DeleteEvent([FromRoute] int id)
+        // {
+        //     if(!ModelState.IsValid){
+        //         return BadRequest(ModelState);
+        //     }
+
+        //     var username = User.GetUserName();
+        //     var user = await _userManager.FindByNameAsync(username);
+        //     if (user == null)
+        //     {
+        //         return BadRequest("User not found");
+        //     }
+
+        //     var eventModel = await _eventRepo.DeleteAsync(id,user.Id);
+        //     if(eventModel == null){
+        //         return NotFound("event not found or user is not the creator of the event");
+        //     }
+        //     return Ok(new { message = "Event deleted successfully", deletedEvent = eventModel });
+        // }
 
     }
 }
