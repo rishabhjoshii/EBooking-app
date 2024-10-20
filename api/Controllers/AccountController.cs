@@ -128,20 +128,23 @@ namespace api.Controllers
             );
         }
 
-        [Authorize]
-        [HttpPost("logout")]
-        public async Task<IActionResult> LogoutUser()
-        {
-            await _signInManager.SignOutAsync();
-            return Ok("User Logged out Successfully");
-        }
+        // [Authorize]
+        // [HttpPost("logout")]
+        // public async Task<IActionResult> LogoutUser()
+        // {
+        //     await _signInManager.SignOutAsync();
+        //     return Ok("User Logged out Successfully");
+        // }
 
         [Authorize]
         [HttpGet("userinfo")]
         public async Task<IActionResult> GetUserInfo()
         {
             var username = User.GetUserName();
-            var appUser = await _userManager.FindByNameAsync(username);
+            var appUser = await _userManager.Users
+                .Include(u => u.ProfileImage) 
+                .FirstOrDefaultAsync(u => u.UserName == username);
+                
             if (appUser == null)
             {
                 return Unauthorized("User not found");
@@ -156,6 +159,7 @@ namespace api.Controllers
                 PhoneNumber = appUser.PhoneNumber,
                 PreferredCurrency = appUser.PreferredCurrency,
                 PreferredLanguage = appUser.PreferredLanguage,
+                ProfileImageUrl = appUser.ProfileImage?.FilePath,
             });
         }
 

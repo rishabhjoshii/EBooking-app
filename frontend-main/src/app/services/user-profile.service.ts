@@ -11,17 +11,19 @@ export class UserService {
 
   constructor(private http: HttpClient, private _authService : AuthService) {}
 
-  updateProfile(profileData: any): Observable<User> {
+  updateProfile(profileData: FormData): Observable<User> {
     const user = localStorage.getItem('currentUser');
-    if(user)
-    {
-      var usernew= JSON.parse(user);
-      var token=usernew.token;
+    let token = '';
+  
+    if (user) {
+      var usernew = JSON.parse(user);
+      token = usernew.token;
     }
+  
     const headers = new HttpHeaders({
       'Authorization': `Bearer ${token}`
     });
-    
+  
     return this.http.put<any>('http://localhost:5241/api/account', profileData, { headers }).pipe(
       tap(user => {
         localStorage.removeItem('currentUser');
@@ -30,6 +32,7 @@ export class UserService {
       })
     );
   }
+  
 
   getUserProfile(token : string): Observable<any> {
     const headers = new HttpHeaders({

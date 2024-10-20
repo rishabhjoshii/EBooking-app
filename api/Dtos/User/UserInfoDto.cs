@@ -15,6 +15,7 @@ namespace api.Dtos.User
         public string? PhoneNumber { get; set; }
         public string PreferredCurrency { get; set; }
         public string PreferredLanguage { get; set; }
+        public string? ProfileImageUrl { get; set; }
 
         public string? Token { get; set; }
     }

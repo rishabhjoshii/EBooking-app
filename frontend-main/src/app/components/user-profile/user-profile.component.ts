@@ -32,7 +32,12 @@ export class ProfileComponent {
             this.userProfile = {
               userName: response.userName,
               email: response.email,
-              phoneNumber: response.phoneNumber
+              phoneNumber: response.phoneNumber,
+              firstName: response.firstName,
+              lastName: response.lastName,
+              preferredCurrency: response.preferredCurrency,
+              preferredLanguage: response.preferredLanguage,
+              profileImageUrl: response.profileImageUrl,
             };
           },
           error: (error) => {

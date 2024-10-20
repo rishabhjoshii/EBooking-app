@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 })
 export class EditProfileComponent implements OnInit {
   profileForm: FormGroup;
+  profileImage: File | null = null; // To hold the selected file
   updateSuccess = false;
   updateError = '';
 
@@ -23,7 +24,11 @@ export class EditProfileComponent implements OnInit {
     this.profileForm = this.fb.group({
       userName: [''],
       email: [''],
+      firstName: [''],
+      lastName: [''],
       phoneNumber: [''],
+      preferredCurrency: [''],
+      preferredLanguage: [''],
       oldPassWord: [''],
       newPassWord: ['']
     });
@@ -31,16 +36,15 @@ export class EditProfileComponent implements OnInit {
 
   ngOnInit(): void {}
 
+  onFileChange(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      this.profileImage = file;
+    }
+  }
+
   onSubmit(): void {
     const formValue = this.profileForm.value;
-    
-    // Remove empty fields
-    // const updateData = Object.keys(formValue).reduce((acc: any, key) => {
-    //   if (formValue[key]) {
-    //     acc[key] = formValue[key];
-    //   }
-    //   return acc;
-    // }, {});
 
     // Check if both password fields are filled if either is present
     if ((formValue.oldPassWord && !formValue.newPassWord) || 
@@ -49,11 +53,24 @@ export class EditProfileComponent implements OnInit {
       return;
     }
 
-    this.userService.updateProfile(formValue).subscribe({
+    const formData = new FormData();
+    formData.append('userName', formValue.userName);
+    formData.append('email', formValue.email);
+    formData.append('firstName', formValue.firstName);
+    formData.append('lastName', formValue.lastName);
+    formData.append('phoneNumber', formValue.phoneNumber);
+    formData.append('preferredCurrency', formValue.preferredCurrency);
+    formData.append('preferredLanguage', formValue.preferredLanguage);
+    formData.append('oldPassWord', formValue.oldPassWord);
+    formData.append('newPassWord', formValue.newPassWord);
+    formData.append('profileImage', this.profileImage ? this.profileImage : '');
+
+    this.userService.updateProfile(formData).subscribe({
       next: (response) => {
         this.updateSuccess = true;
         this.updateError = '';
         this.profileForm.reset();
+        this.profileImage = null;
         alert("profile updated successfully");
         this.router.navigate(['/profile']);
       },
