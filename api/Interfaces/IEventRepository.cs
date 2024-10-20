@@ -16,7 +16,7 @@ namespace api.Interfaces
 
         Task<Event> CreateAsync(Event eventModel);
 
-        Task<Event?> UpdateAsync(int id, Event eventModel);
+        // Task<Event?> UpdateAsync(int id, Event eventModel);
 
         Task<Event?> DeleteAsync(int id, string userId);
     }

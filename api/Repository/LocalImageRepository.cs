@@ -90,6 +90,31 @@ namespace api.Repository
 
         public async Task<UserProfileImage> UpdateUserProfileImage(UserProfileImage userProfileImage)
         {
+            // Combine the new file name and extension correctly
+            var fileNameWithExtension = $"{userProfileImage.FileName}{userProfileImage.FileExtension}";
+
+            // Ensure the ProfileImages directory exists
+            var profileImagesDirectory = Path.Combine(webHostEnvironment.ContentRootPath, "ProfileImages");
+            if (!Directory.Exists(profileImagesDirectory))
+            {
+                Directory.CreateDirectory(profileImagesDirectory);
+            }
+
+            // Construct the full local file path for the new image
+            var newLocalFilePath = Path.Combine(profileImagesDirectory, fileNameWithExtension);
+
+            // Upload the new profile image to the local path
+            using (var stream = new FileStream(newLocalFilePath, FileMode.Create))
+            {
+                await userProfileImage.File.CopyToAsync(stream);
+            }
+
+            // Construct the new URL for the profile image
+            var newUrlFilePath = $"{httpContextAccessor.HttpContext.Request.Scheme}://{httpContextAccessor.HttpContext.Request.Host}{httpContextAccessor.HttpContext.Request.PathBase}/ProfileImages/{fileNameWithExtension}";
+
+            // Save the image's new URL in the database
+            userProfileImage.FilePath = newUrlFilePath;
+            
             dbContext.UserProfileImages.Update(userProfileImage);
             await dbContext.SaveChangesAsync();
             return userProfileImage;

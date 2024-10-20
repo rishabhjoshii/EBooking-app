@@ -22,15 +22,18 @@ namespace api.Controllers
     {
         private readonly IEventRepository _eventRepo;
         private readonly IBookingRepository _bookingRepo;
-        private readonly UserManager<ApplicationUser> _userManager;
-
+        private readonly ITicketTypeRepository _ticketTypeRepo;
         private readonly IImageRepository _imageRepo;
-        public EventController(IEventRepository eventRepo, IBookingRepository bookingRepo, UserManager<ApplicationUser> userManager, IImageRepository imageRepo)
+        private readonly UserManager<ApplicationUser> _userManager;
+        
+        public EventController(IEventRepository eventRepo, IBookingRepository bookingRepo, UserManager<ApplicationUser> userManager, IImageRepository imageRepo, ITicketTypeRepository ticketTypeRepo)
         {
             _eventRepo = eventRepo;
             _bookingRepo = bookingRepo;
             _userManager = userManager;
             _imageRepo = imageRepo;
+            _ticketTypeRepo = ticketTypeRepo;
+
         }
 
         [HttpGet]
@@ -56,7 +59,6 @@ namespace api.Controllers
             Console.WriteLine("control is reaching here");
             Console.WriteLine("model state is hereeeee : " ,ModelState);
             var eventModel = await _eventRepo.GetByIdAsync(id);
-
             if(eventModel==null){
                 return NotFound("Event id is invalid or does not exist"); 
             }
@@ -66,14 +68,9 @@ namespace api.Controllers
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> CreateEvent([FromForm] CreateEventDto eventDto, [FromForm] ImageUploadRequestDto imageUploadRequestDto)
+        public async Task<IActionResult> CreateEvent([FromBody] CreateEventDto eventDto)
         {
-            ValidateFileUpload(imageUploadRequestDto);
-
-            if(!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            if(!ModelState.IsValid) return BadRequest(ModelState);
 
             var username = User.GetUserName();
             var user = await _userManager.FindByNameAsync(username);
@@ -82,38 +79,25 @@ namespace api.Controllers
                 return BadRequest("User not found");
             }
 
+            if(eventDto.TicketTypes == null || eventDto.TicketTypes.Count == 0)
+            {
+                return BadRequest("No Ticket Types provided.");
+            }
+
             try
             {
                 var eventModel = eventDto.ToEventFromCreateEventDto(user.Id);
-            
+                Console.WriteLine("hereeee: ", eventModel);
+
                 var createdEvent = await _eventRepo.CreateAsync(eventModel);
-
-                foreach (var file in imageUploadRequestDto.Files)
-                {
-
-                    var imageDomainModel = new Image
-                    {
-                        File = file,
-                        FileExtension = Path.GetExtension(file.FileName),
-                        FileSizeInBytes = file.Length,
-                        FileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}",  // Generating GUID filename
-                        FileDescription = null,
-                        EventId = createdEvent.Id,
-                    };
-
-                    await _imageRepo.Upload(imageDomainModel);
-                }
-
 
                 return CreatedAtAction(nameof(GetById), new {id = eventModel.Id}, eventModel.ToEventDto());
             }
             catch(Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                return StatusCode(500, "An error occurred while creating the event.");
-            }
-
-            
+                return StatusCode(500, "An error occurred while creating the event. Check if categoryId is valid or not.");
+            }            
         }
 
         [Authorize]
@@ -141,40 +125,5 @@ namespace api.Controllers
 
         }
 
-
-        // function to validate image upload
-        private void ValidateFileUpload(ImageUploadRequestDto request)
-        {
-            try{
-                var allowedExtensions = new string[] { ".jpeg", ".jpg", ".png"};
-
-                foreach (var file in request.Files)
-                {
-                    // Check if the file is not null
-                    if (file == null)
-                    {
-                        ModelState.AddModelError("file", "One or more files are missing.");
-                        continue;
-                    }
-
-                    // Check if the image extension is valid
-                    if (!allowedExtensions.Contains(Path.GetExtension(file.FileName).ToLower()))
-                    {
-                        ModelState.AddModelError("file", $"Unsupported file extension: {file.FileName}");
-                    }
-
-                    // Validate file size (max 5MB)
-                    if (file.Length > 5242880)
-                    {
-                        ModelState.AddModelError("file", $"File size exceeds 5MB: {file.FileName}");
-                    }
-                }
-            }
-            catch(Exception ex){
-                Console.WriteLine(ex.ToString());
-                ModelState.AddModelError("file", "some error occured regarding file upload");
-            }
-            
-        }
     }
 }

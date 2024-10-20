@@ -39,16 +39,20 @@ namespace api.Controllers
                 if(!ModelState.IsValid)
                     return BadRequest(ModelState);
 
-                var userExisted = await _userManager.Users.FirstOrDefaultAsync(user => user.Email == registerDto.Email || user.UserName == registerDto.Username || user.PhoneNumber == registerDto.PhoneNumber);
+                var userExisted = await _userManager.Users.FirstOrDefaultAsync(user => user.Email == registerDto.Email || user.UserName == registerDto.Username);
                 if (userExisted != null)
                 {
-                    return BadRequest("Username/Email/PhoneNumber already registered");
+                    return BadRequest("Username/Email already registered");
                 }
                 
                 var newUser = new ApplicationUser{
                     UserName = registerDto.Username.ToLower(),
+                    FirstName = registerDto.FirstName,
+                    LastName = registerDto.LastName,
                     Email = registerDto.Email.ToLower(),
                     PhoneNumber = registerDto.PhoneNumber,
+                    PreferredCurrency = registerDto.PreferredCurrency,
+                    PreferredLanguage = registerDto.PreferredLanguage,
                 };
 
                 var createdUser = await _userManager.CreateAsync(newUser, registerDto.Password);
@@ -58,7 +62,12 @@ namespace api.Controllers
                         new NewUserDto{
                             Message = "User created successfully",
                             UserName = newUser.UserName,
+                            FirstName = newUser.FirstName,
+                            LastName = newUser.LastName,
                             Email = newUser.Email,
+                            PhoneNumber = newUser.PhoneNumber,
+                            PreferredCurrency = newUser.PreferredCurrency,
+                            PreferredLanguage = newUser.PreferredLanguage,
                             Token = "please login",
                         }
                     );
@@ -107,7 +116,12 @@ namespace api.Controllers
                 new NewUserDto{
                     Message = "login successful",
                     UserName = user.UserName,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
                     Email = user.Email,
+                    PhoneNumber = user.PhoneNumber,
+                    PreferredCurrency = user.PreferredCurrency,
+                    PreferredLanguage = user.PreferredLanguage,
                     Token = _tokenService.CreateToken(user),
                     ProfileImageUrl = profileImageUrl,
                 }
@@ -137,7 +151,11 @@ namespace api.Controllers
                 message = "user info fetched successfully",
                 UserName = appUser.UserName,
                 Email = appUser.Email,
-                PhoneNumber = appUser.PhoneNumber
+                FirstName = appUser.FirstName,
+                LastName = appUser.LastName,
+                PhoneNumber = appUser.PhoneNumber,
+                PreferredCurrency = appUser.PreferredCurrency,
+                PreferredLanguage = appUser.PreferredLanguage,
             });
         }
 
@@ -150,6 +168,10 @@ namespace api.Controllers
                 UserName = user.UserName,
                 Email = user.Email,
                 PhoneNumber = user.PhoneNumber,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                PreferredCurrency = user.PreferredCurrency,
+                PreferredLanguage = user.PreferredLanguage,
                 ProfileImageUrl = user.ProfileImage?.FilePath
             }).ToList();
 
@@ -188,12 +210,18 @@ namespace api.Controllers
             }
 
             //update the user details
-            if (!string.IsNullOrEmpty(updateUserDto.Email))
-                user.Email = updateUserDto.Email;
+            if (!string.IsNullOrEmpty(updateUserDto.FirstName))
+                user.FirstName = updateUserDto.FirstName;
+            if (!string.IsNullOrEmpty(updateUserDto.LastName))
+                user.LastName = updateUserDto.LastName;
             if (!string.IsNullOrEmpty(updateUserDto.PhoneNumber))
                 user.PhoneNumber = updateUserDto.PhoneNumber;
             if (!string.IsNullOrEmpty(updateUserDto.UserName))
-                user.UserName = updateUserDto.UserName;
+                user.UserName = updateUserDto.UserName.ToLower();
+            if (!string.IsNullOrEmpty(updateUserDto.PreferredCurrency))
+                user.PreferredCurrency = updateUserDto.PreferredCurrency;
+            if (!string.IsNullOrEmpty(updateUserDto.PreferredLanguage))
+                user.PreferredLanguage = updateUserDto.PreferredLanguage;
 
             
             //update the user
@@ -221,7 +249,7 @@ namespace api.Controllers
                 var existingProfileImage = await _imageRepo.GetUserProfileImageByUserId(user.Id);
                 if (existingProfileImage != null)
                 {
-                    // Delete the existing file if necessary
+                    //Delete the existing file if necessary
                     // var oldFilePath = Path.Combine(webHostEnvironment.ContentRootPath, "Images", existingProfileImage.FileName);
                     // if (System.IO.File.Exists(oldFilePath))
                     // {
@@ -234,6 +262,7 @@ namespace api.Controllers
                     existingProfileImage.FileSizeInBytes = updateUserDto.ProfileImage.Length;
                     existingProfileImage.FileName = $"{Guid.NewGuid()}{Path.GetExtension(updateUserDto.ProfileImage.FileName)}";  // Generating new GUID filename
 
+                    Console.WriteLine("look hereeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee, control reaching here");
                     var updatedProfileImage = await _imageRepo.UpdateUserProfileImage(existingProfileImage);
                     profileImageUrl = updatedProfileImage.FilePath;
                 }
@@ -259,8 +288,14 @@ namespace api.Controllers
                     Message = "profile updated successfully",
                     UserName = user.UserName,
                     Email = user.Email,
+                    FirstName = user.FirstName,
+                    LastName = user.LastName,
+                    PhoneNumber = user.PhoneNumber,
+                    PreferredCurrency = user.PreferredCurrency,
+                    PreferredLanguage = user.PreferredLanguage,
                     Token = _tokenService.CreateToken(user),
-                    ProfileImageUrl = profileImageUrl,
+                    ProfileImageUrl = user.ProfileImage?.FilePath,
+                    //ProfileImageUrl = profileImageUrl,
                 }
             );
         }

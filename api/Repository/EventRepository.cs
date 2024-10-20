@@ -15,6 +15,7 @@ namespace api.Repository
     public class EventRepository : IEventRepository
     {
         private readonly ApplicationDBContext _context;
+
         public EventRepository(ApplicationDBContext context)
         {
             _context = context;
@@ -22,6 +23,8 @@ namespace api.Repository
 
         public async Task<Event> CreateAsync(Event eventModel)
         {
+            Console.WriteLine("oh my gaushhhhh loooknhereeeee: ", eventModel.ToString());
+            
             await _context.Events.AddAsync(eventModel);
             await _context.SaveChangesAsync();
 
@@ -60,14 +63,24 @@ namespace api.Repository
 
         public async Task<List<Event>> GetAllAsync()
         {
-            var events = await _context.Events.Include(e => e.Images).ToListAsync();
+            var events = await _context.Events
+                .Include(e => e.Images)
+                .Include(e => e.TicketTypes)  // Include TicketTypes as well
+                .Include(e => e.ApplicationUser)
+                .ToListAsync();
+
             return events;
         }
 
         public async Task<Event?> GetByIdAsync(int id)
         {
             try{
-                var eventModel = await _context.Events.Include(e => e.Images).FirstOrDefaultAsync(x => x.Id == id);
+                var eventModel = await _context.Events
+                    .Include(e => e.Images)
+                    .Include(e => e.TicketTypes)
+                    .Include(e => e.ApplicationUser)
+                    .FirstOrDefaultAsync(x => x.Id == id);
+                    
                 return eventModel;
             }
             catch(Exception ex){
@@ -76,31 +89,31 @@ namespace api.Repository
             
         }
 
-        public async Task<Event?> UpdateAsync(int id, Event eventModel)
-        {
-            try{
-                var existingEvent = await _context.Events.FirstOrDefaultAsync(x => x.Id == id);
-                if(existingEvent == null){
-                    return null;
-                }
-                existingEvent.EventName = eventModel.EventName;
-                existingEvent.Date = eventModel.Date;
-                existingEvent.Timing = eventModel.Timing;
-                existingEvent.Venue = eventModel.Venue;
-                existingEvent.Description = eventModel.Description;
-                existingEvent.CategoryId = eventModel.CategoryId;
-                existingEvent.TotalTickets = eventModel.TotalTickets;
-                existingEvent.TicketPrice = eventModel.TicketPrice;
+        // public async Task<Event?> UpdateAsync(int id, Event eventModel)
+        // {
+        //     try{
+        //         var existingEvent = await _context.Events.FirstOrDefaultAsync(x => x.Id == id);
+        //         if(existingEvent == null){
+        //             return null;
+        //         }
+        //         existingEvent.EventName = eventModel.EventName;
+        //         existingEvent.Date = eventModel.Date;
+        //         existingEvent.Timing = eventModel.Timing;
+        //         existingEvent.Venue = eventModel.Venue;
+        //         existingEvent.Description = eventModel.Description;
+        //         existingEvent.CategoryId = eventModel.CategoryId;
+        //         existingEvent.TotalTickets = eventModel.TotalTickets;
+        //         existingEvent.TicketPrice = eventModel.TicketPrice;
 
-                await _context.SaveChangesAsync();
+        //         await _context.SaveChangesAsync();
 
-                return existingEvent;
-            }
-            catch(Exception e){
-                Console.WriteLine(e.ToString());
-                return null;
-            }
+        //         return existingEvent;
+        //     }
+        //     catch(Exception e){
+        //         Console.WriteLine(e.ToString());
+        //         return null;
+        //     }
             
-        }
+        // }
     }
 }

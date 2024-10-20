@@ -17,6 +17,8 @@ namespace api.Data
         public DbSet<Image> Images { get; set; }
         public DbSet<UserProfileImage> UserProfileImages { get; set; }
 
+        public DbSet<TicketType> TicketTypes { get; set; }
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
@@ -55,10 +57,15 @@ namespace api.Data
                 .WithMany(e => e.Images) // An event can have many images
                 .HasForeignKey(img => img.EventId) // Foreign key
                 .OnDelete(DeleteBehavior.Cascade); // Images should be deleted when the event is deleted
-            }
 
-            
-            
+            // Event -> TicketType relationship (One-to-Many)
+            builder.Entity<Event>()
+                .HasMany(e => e.TicketTypes)
+                .WithOne(tt => tt.Event)
+                .HasForeignKey(tt => tt.EventId)
+                .OnDelete(DeleteBehavior.Cascade); // Ensures that TicketTypes are deleted when the event is deleted
+
+        }
     }
 }
 

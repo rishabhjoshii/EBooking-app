@@ -28,14 +28,6 @@ namespace api.Models
         [Required]
         [MaxLength(2000)]
         public string Description { get; set; } = string.Empty;
-
-        [Required]
-        [Column(TypeName = "decimal(18,2)")]
-        public decimal TicketPrice { get; set; }
-
-        [Required]
-        public int TotalTickets { get; set; }
-        public int BookedTickets { get; set; }
         public DateTime CreatedAt { get; set; }
 
         // Foreign Key
@@ -45,10 +37,10 @@ namespace api.Models
         [Required]
         public string ApplicationUserId { get; set; } // foreign key  // represents who created the event 
 
-        
-
         //navigation property
         public virtual ICollection<Booking> Bookings { get; set; } = new List<Booking>();
+
+        public virtual ICollection<TicketType> TicketTypes { get; set; } = new List<TicketType>();
 
         [ForeignKey("CategoryId")]
         public virtual EventCategory Category { get; set; }
