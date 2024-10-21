@@ -16,6 +16,6 @@ namespace api.Interfaces
         // Task<Event?> UpdateAsync(int id, Event eventModel);
         Task<Event?> DeleteAsync(int id, string userId);
         Task<List<Event>> SearchEventsAsync(string searchText);
-        Task<List<Event>> GetAllFilteredAsync(DateTime? startDate, DateTime? endDate, int? categoryId);
+        Task<List<Event>> GetAllFilteredAsync(DateTime? startDate, DateTime? endDate, string? categoryName);
     }
 }

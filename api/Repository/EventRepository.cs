@@ -105,12 +105,13 @@ namespace api.Repository
             return events;
         }
 
-        public async Task<List<Event>> GetAllFilteredAsync(DateTime? startDate, DateTime? endDate, int? categoryId)
+        public async Task<List<Event>> GetAllFilteredAsync(DateTime? startDate, DateTime? endDate, string? categoryName)
         {
             var query = _context.Events
                                 .Include(e => e.Images)
                                 .Include(e => e.TicketTypes)
                                 .Include(e => e.ApplicationUser)
+                                .Include(e => e.Category)
                                 .AsQueryable();
 
             // Filter by date range
@@ -124,9 +125,9 @@ namespace api.Repository
             }
             
             // Filter by event category
-            if (categoryId.HasValue)
+            if (!string.IsNullOrWhiteSpace(categoryName))
             {
-                query = query.Where(e => e.CategoryId == categoryId.Value);
+                query = query.Where(e => e.Category.Category == categoryName);
             }
 
             return await query.ToListAsync();

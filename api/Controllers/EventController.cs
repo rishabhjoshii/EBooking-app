@@ -121,14 +121,14 @@ namespace api.Controllers
         }
 
         [HttpGet("filtered")]
-        public async Task<IActionResult> GetAllFiltered([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate, [FromQuery] int? categoryId)
+        public async Task<IActionResult> GetAllFiltered([FromQuery] DateTime? startDate, [FromQuery] DateTime? endDate, [FromQuery] string? categoryName)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
 
-            var events = await _eventRepo.GetAllFilteredAsync(startDate, endDate, categoryId);
+            var events = await _eventRepo.GetAllFilteredAsync(startDate, endDate, categoryName);
             var eventDtos = events.Select(s => s.ToEventDto()).ToList();
 
             return Ok(eventDtos);

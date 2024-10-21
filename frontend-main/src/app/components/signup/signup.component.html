@@ -3,6 +3,24 @@
     <h1 class="text-2xl font-bold mb-4">Sign Up</h1>
     <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" class="space-y-4">
 
+      <!-- firstName field -->
+      <div>
+        <label for="firstName" class="block mb-2">First Name*:</label>
+        <input type="text" id="firstName" formControlName="firstName"
+               class="w-full px-3 py-2 border rounded" />
+        <div *ngIf="signupForm.get('firstName')?.invalid && signupForm.get('firstName')?.touched" 
+             class="text-red-500 mt-1">
+          <small *ngIf="signupForm.get('firstName')?.errors?.['required']">First Name is required.</small>
+        </div>
+      </div>
+
+      <!-- lastName Field -->
+      <div>
+        <label for="lastName" class="block mb-2">Last Name*:</label>
+        <input type="text" id="lastName" formControlName="lastName"
+               class="w-full px-3 py-2 border rounded" />
+      </div>
+
         <!-- Username Field -->
       <div>
         <label for="username" class="block mb-2">Username:</label>
@@ -35,8 +53,29 @@
                class="w-full px-3 py-2 border rounded" />
         <div *ngIf="signupForm.get('phoneNumber')?.invalid && signupForm.get('phoneNumber')?.touched" 
              class="text-red-500 mt-1">
-          <small *ngIf="signupForm.get('phoneNumber')?.errors?.['required']">Phone number is required.</small>
           <small *ngIf="signupForm.get('phoneNumber')?.errors?.['pattern']">Phone number must be 10 digits.</small>
+        </div>
+      </div>
+
+      <!-- preferredLanguage Field -->
+      <div>
+        <label for="preferredLanguage" class="block mb-2">Preferred Language*:</label>
+        <input type="text" id="preferredLanguage" formControlName="preferredLanguage"
+               class="w-full px-3 py-2 border rounded" />
+        <div *ngIf="signupForm.get('preferredLanguage')?.invalid && signupForm.get('preferredLanguage')?.touched" 
+             class="text-red-500 mt-1">
+          <small *ngIf="signupForm.get('preferredLanguage')?.errors?.['required']">Preferred Language is required.</small>
+        </div>
+      </div>
+
+      <!-- preferred Currency field -->
+      <div>
+        <label for="preferredCurrency" class="block mb-2">Preferred Currency*:</label>
+        <input type="text" id="preferredCurrency" formControlName="preferredCurrency"
+               class="w-full px-3 py-2 border rounded" />
+        <div *ngIf="signupForm.get('preferredCurrency')?.invalid && signupForm.get('preferredCurrency')?.touched" 
+             class="text-red-500 mt-1">
+          <small *ngIf="signupForm.get('preferredCurrency')?.errors?.['required']">Preferred Currency is required.</small>
         </div>
       </div>
 
