@@ -7,12 +7,13 @@ import { BookingHistoryComponent } from './components/booking-history/booking-hi
 import { ProfileComponent } from './components/user-profile/user-profile.component';
 import { EditProfileComponent } from './components/edit-profile/edit-profile.component';
 import { authGuard } from './guards/auth-guard.guard';
+import { EventDetailsComponent } from './components/event-details/event-details.component';
 
 
 export const routes: Routes = [
     { path: '', component: EventListComponent },
     { path: 'events', component: EventListComponent },
-    { path: 'booking/:id', component: BookingFormComponent, canActivate: [authGuard] },
+    { path: 'event/:id', component: EventDetailsComponent},
     { path: 'login', component: LoginComponent },
     { path: 'signup', component: SignupComponent },
     { path: 'booking-history', component: BookingHistoryComponent, canActivate: [authGuard] },

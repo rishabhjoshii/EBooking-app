@@ -31,6 +31,10 @@ namespace api.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FirstName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PreferredLanguage = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PreferredCurrency = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -170,6 +174,29 @@ namespace api.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "UserProfileImages",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FileExtension = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FileSizeInBytes = table.Column<long>(type: "bigint", nullable: false),
+                    FilePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserProfileImages", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserProfileImages_AspNetUsers_ApplicationUserId",
+                        column: x => x.ApplicationUserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Events",
                 columns: table => new
                 {
@@ -180,9 +207,6 @@ namespace api.Migrations
                     Timing = table.Column<TimeSpan>(type: "time", nullable: false),
                     Venue = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(2000)", maxLength: 2000, nullable: false),
-                    TicketPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    TotalTickets = table.Column<int>(type: "int", nullable: false),
-                    BookedTickets = table.Column<int>(type: "int", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CategoryId = table.Column<int>(type: "int", nullable: false),
                     ApplicationUserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
@@ -238,8 +262,9 @@ namespace api.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FileName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FileDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FileExtension = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FileSizeInBytes = table.Column<long>(type: "bigint", nullable: false),
                     FilePath = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     EventId = table.Column<int>(type: "int", nullable: false)
@@ -249,6 +274,29 @@ namespace api.Migrations
                     table.PrimaryKey("PK_Images", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Images_Events_EventId",
+                        column: x => x.EventId,
+                        principalTable: "Events",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TicketTypes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EventId = table.Column<int>(type: "int", nullable: false),
+                    TicketTypeName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TicketPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    TotalTickets = table.Column<int>(type: "int", nullable: false),
+                    BookedTickets = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TicketTypes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TicketTypes_Events_EventId",
                         column: x => x.EventId,
                         principalTable: "Events",
                         principalColumn: "Id",
@@ -318,6 +366,17 @@ namespace api.Migrations
                 name: "IX_Images_EventId",
                 table: "Images",
                 column: "EventId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TicketTypes_EventId",
+                table: "TicketTypes",
+                column: "EventId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserProfileImages_ApplicationUserId",
+                table: "UserProfileImages",
+                column: "ApplicationUserId",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -343,6 +402,12 @@ namespace api.Migrations
 
             migrationBuilder.DropTable(
                 name: "Images");
+
+            migrationBuilder.DropTable(
+                name: "TicketTypes");
+
+            migrationBuilder.DropTable(
+                name: "UserProfileImages");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

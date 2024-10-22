@@ -12,7 +12,7 @@ using api.Data;
 namespace api.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20241017091733_init")]
+    [Migration("20241022060724_init")]
     partial class init
     {
         /// <inheritdoc />
@@ -177,6 +177,13 @@ namespace api.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("bit");
 
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
 
@@ -199,6 +206,14 @@ namespace api.Migrations
 
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
+
+                    b.Property<string>("PreferredCurrency")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PreferredLanguage")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
@@ -279,9 +294,6 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("BookedTickets")
-                        .HasColumnType("int");
-
                     b.Property<int>("CategoryId")
                         .HasColumnType("int");
 
@@ -301,14 +313,8 @@ namespace api.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<decimal>("TicketPrice")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<TimeSpan>("Timing")
                         .HasColumnType("time");
-
-                    b.Property<int>("TotalTickets")
-                        .HasColumnType("int");
 
                     b.Property<string>("Venue")
                         .IsRequired()
@@ -354,8 +360,11 @@ namespace api.Migrations
                     b.Property<string>("FileDescription")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("FileName")
+                    b.Property<string>("FileExtension")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FilePath")
@@ -370,6 +379,71 @@ namespace api.Migrations
                     b.HasIndex("EventId");
 
                     b.ToTable("Images");
+                });
+
+            modelBuilder.Entity("api.Models.TicketType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BookedTickets")
+                        .HasColumnType("int");
+
+                    b.Property<int>("EventId")
+                        .HasColumnType("int");
+
+                    b.Property<decimal>("TicketPrice")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("TicketTypeName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("TotalTickets")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EventId");
+
+                    b.ToTable("TicketTypes");
+                });
+
+            modelBuilder.Entity("api.Models.UserProfileImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FileExtension")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FileName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("FileSizeInBytes")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId")
+                        .IsUnique();
+
+                    b.ToTable("UserProfileImages");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -472,11 +546,40 @@ namespace api.Migrations
                     b.Navigation("Event");
                 });
 
+            modelBuilder.Entity("api.Models.TicketType", b =>
+                {
+                    b.HasOne("api.Models.Event", "Event")
+                        .WithMany("TicketTypes")
+                        .HasForeignKey("EventId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Event");
+                });
+
+            modelBuilder.Entity("api.Models.UserProfileImage", b =>
+                {
+                    b.HasOne("api.Models.ApplicationUser", "ApplicationUser")
+                        .WithOne("ProfileImage")
+                        .HasForeignKey("api.Models.UserProfileImage", "ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+                });
+
+            modelBuilder.Entity("api.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("ProfileImage");
+                });
+
             modelBuilder.Entity("api.Models.Event", b =>
                 {
                     b.Navigation("Bookings");
 
                     b.Navigation("Images");
+
+                    b.Navigation("TicketTypes");
                 });
 
             modelBuilder.Entity("api.Models.EventCategory", b =>

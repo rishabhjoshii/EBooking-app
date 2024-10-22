@@ -1,6 +1,6 @@
 
 <div class="container mx-auto mt-8 max-w-md">
-    <h1 class="text-2xl font-bold">Update Profile</h1>
+    <p class="text-2xl font-bold">Update Profile</p>
     <div class="mb-6">
       <small class="text-gray-500">(If you do not wish to update any field, keep it empty only.)</small>
     </div>
@@ -19,57 +19,57 @@
   
     <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="space-y-4">
       <div>
-        <label for="userName" class="block text-m font-medium text-gray-700">New Username</label>
+        <label for="userName" class="block text-sm font-medium text-gray-700">New Username</label>
         <input type="text" id="userName" formControlName="userName" 
                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm ">
       </div>
       
       <div>
-        <label for="firstName" class="block text-m font-medium text-gray-700">First Name</label>
+        <label for="firstName" class="block text-sm font-medium text-gray-700">First Name</label>
         <input type="text" id="firstName" formControlName="firstName" 
                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
       </div>
 
       <div>
-        <label for="lastName" class="block text-m font-medium text-gray-700">Last Name</label>
+        <label for="lastName" class="block text-sm font-medium text-gray-700">Last Name</label>
         <input type="text" id="lastName" formControlName="lastName" 
                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
       </div>
       
       <div>
-        <label for="phoneNumber" class="block text-m font-medium text-gray-700">Phone Number</label>
+        <label for="phoneNumber" class="block text-sm font-medium text-gray-700">Phone Number</label>
         <input type="tel" id="phoneNumber" formControlName="phoneNumber" 
                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
       </div>
 
       <div>
-        <label for="preferredCurrency" class="block text-m font-medium text-gray-700">Preferred Currency</label>
+        <label for="preferredCurrency" class="block text-sm font-medium text-gray-700">Preferred Currency</label>
         <input type="text" id="preferredCurrency" formControlName="preferredCurrency" 
                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
       </div>
 
       <div>
-        <label for="preferredLanguage" class="block text-m font-medium text-gray-700">Preferred Language</label>
+        <label for="preferredLanguage" class="block text-sm font-medium text-gray-700">Preferred Language</label>
         <input type="text" id="preferredLanguage" formControlName="preferredLanguage" 
                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
       </div>
       
       <div>
-        <label for="oldPassWord" class="block text-m font-medium text-gray-700">Old Password</label>
+        <label for="oldPassWord" class="block text-sm font-medium text-gray-700">Old Password</label>
         <small class="text-gray-500">(Both oldPassWord and newPassWord field are required in case if either is filled)</small>
         <input type="password" id="oldPassWord" formControlName="oldPassWord" 
                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
       </div>
       
       <div>
-        <label for="newPassWord" class="block text-m font-medium text-gray-700">New Password</label>
+        <label for="newPassWord" class="block text-sm font-medium text-gray-700">New Password</label>
         <small class="text-gray-500">(Both oldPassWord and newPassWord field are required in case if either is filled)</small>
         <input type="password" id="newPassWord" formControlName="newPassWord" 
                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
       </div>
 
       <div>
-        <label for="profileImage" class="block text-m font-medium text-gray-700">Profile Image</label>
+        <label for="profileImage" class="block text-sm font-medium text-gray-700">Profile Image</label>
         <input type="file" id="profileImage" (change)="onFileChange($event)" 
                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
       </div>
